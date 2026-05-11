@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh vs Natchez — Decision Tree</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #FAF9F5;
+    --surface: #FFFFFF;
+    --surface-2: #F1EFE8;
+    --surface-3: #E8E6DD;
+    --text: #1F1F1E;
+    --text-2: #5F5E5A;
+    --text-3: #888780;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.15);
+    --accent: #C15F3C;
+    --accent-dark: #993C1D;
+    --accent-bg: #FAECE7;
+    --blue: #185FA5;
+    --blue-bg: #E6F1FB;
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --teal: #0F6E56;
+    --teal-bg: #E1F5EE;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; overflow: hidden; }
+
+  .app { display: flex; flex-direction: column; height: 100vh; }
+
+  /* HEADER */
+  header.topbar {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 15px; font-weight: 500; margin: 0; }
+  header .sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+  .btn-row { display: flex; gap: 8px; }
+  .btn { font-size: 12px; padding: 6px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; font-family: var(--font); }
+  .btn:hover { background: var(--surface-2); }
+
+  /* 3-COLUMN LAYOUT */
+  .columns {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .column {
+    background: var(--surface);
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-shrink: 0;
+    min-width: 200px;
+  }
+  .column-inputs { width: 340px; }
+  .column-tree { flex: 1; min-width: 360px; background: var(--bg); }
+  .column-results { width: 380px; }
+
+  .resizer {
+    width: 6px;
+    background: transparent;
+    cursor: col-resize;
+    flex-shrink: 0;
+    position: relative;
+    border-left: 0.5px solid var(--border);
+    border-right: 0.5px solid var(--border);
+    transition: background 0.15s;
+  }
+  .resizer:hover, .resizer.active { background: var(--accent-bg); }
+  .resizer::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 24px;
+    background: var(--border-strong);
+    border-radius: 1px;
+  }
+  body.resizing { cursor: col-resize; user-select: none; }
+  body.resizing * { pointer-events: none; }
+  body.resizing .resizer { pointer-events: all; }
+
+  .column-header {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    padding: 12px 16px 8px;
+    border-bottom: 0.5px solid var(--border);
+    z-index: 10;
+  }
+  .column-tree .column-header { background: var(--bg); }
+  .column-header h2 { font-size: 11px; font-weight: 500; margin: 0; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .column-body { padding: 16px; }
+
+  /* INPUTS — left column */
+  .input-group { margin-bottom: 12px; display: flex; flex-direction: column; }
+  .input-group label { font-size: 11px; color: var(--text-2); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+  .input-group .hint { font-size: 10px; color: var(--text-3); cursor: help; }
+  .input-group input[type=number], .input-group input[type=text], .input-group select {
+    font-size: 13px; padding: 7px 10px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-family: var(--font); width: 100%;
+  }
+  .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+  .input-prefix { position: relative; }
+  .input-group .input-prefix input { padding-left: 22px; }
+  .input-prefix::before { content: '$'; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-2); pointer-events: none; z-index: 1; }
+  .input-suffix { position: relative; }
+  .input-group .input-suffix input { padding-right: 24px; }
+  .input-suffix::after { content: attr(data-suffix); position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-2); pointer-events: none; z-index: 1; }
+
+  .input-section-divider {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    font-weight: 500;
+    margin: 18px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .input-section-divider:first-child { margin-top: 0; }
+
+  /* Expenses */
+  .expenses-list { display: flex; flex-direction: column; gap: 6px; }
+  .expense-row { display: grid; grid-template-columns: 1fr 110px 28px; gap: 6px; align-items: center; }
+  .expense-row input { font-size: 12px; padding: 6px 8px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-family: var(--font); width: 100%; }
+  .expense-row .input-prefix input { padding-left: 18px; }
+  .expense-row .input-prefix::before { font-size: 12px; left: 6px; }
+  .expense-row .remove-btn { background: transparent; border: 0.5px solid var(--border-strong); color: var(--text-3); cursor: pointer; padding: 0; height: 26px; border-radius: var(--radius-sm); font-size: 14px; }
+  .expense-row .remove-btn:hover { background: var(--red-bg); color: var(--red); }
+  .add-expense { font-size: 12px; padding: 6px 12px; border: 0.5px dashed var(--border-strong); border-radius: var(--radius-sm); background: transparent; color: var(--text-2); cursor: pointer; margin-top: 8px; width: 100%; }
+  .add-expense:hover { background: var(--surface-2); }
+
+  /* DECISION TREE — middle column, all steps visible */
+  .tree-step {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .tree-step.locked { opacity: 0.55; }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .step-number {
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .step-number.active { background: var(--accent); color: white; }
+  .step-number.complete { background: var(--green); color: white; }
+  .step-question { font-size: 14px; font-weight: 500; margin: 0 0 2px; }
+  .step-sub { font-size: 12px; color: var(--text-2); margin: 0 0 10px; }
+
+  .choices { display: flex; flex-direction: column; gap: 8px; }
+  .choice {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.12s;
+    background: var(--surface);
+    position: relative;
+  }
+  .choice:hover:not(.disabled) { border-color: var(--accent); background: var(--accent-bg); }
+  .choice.selected { border-color: var(--accent); border-width: 2px; padding: 9px 11px; background: var(--accent-bg); }
+  .choice.selected::after { content: '✓'; position: absolute; top: 8px; right: 11px; color: var(--accent-dark); font-weight: 500; font-size: 13px; }
+  .choice.disabled { cursor: not-allowed; opacity: 0.6; background: var(--surface-2); }
+  .choice-title { font-size: 13px; font-weight: 500; margin: 0 0 3px; padding-right: 24px; }
+  .choice-desc { font-size: 11px; color: var(--text-2); margin: 0; line-height: 1.45; }
+  .choice-meta { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+  .badge { font-size: 9px; padding: 2px 7px; border-radius: 20px; font-weight: 500; }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+  .badge-gray { background: var(--surface-2); color: var(--text-2); }
+
+  /* Radio pill group (e.g. children count) */
+  .radio-group {
+    display: inline-flex;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    width: 100%;
+  }
+  .radio-pill {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+    border-right: 0.5px solid var(--border-strong);
+  }
+  .radio-pill:last-child { border-right: none; }
+  .radio-pill input[type=radio] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .radio-pill span {
+    display: block;
+    text-align: center;
+    padding: 7px 10px;
+    font-size: 12px;
+    color: var(--text-2);
+    background: var(--surface);
+    transition: all 0.12s;
+  }
+  .radio-pill:hover span { background: var(--surface-2); }
+  .radio-pill input[type=radio]:checked + span {
+    background: var(--accent);
+    color: white;
+    font-weight: 500;
+  }
+
+  /* Addition controls (inline within choice card when selected) */
+  .addition-controls {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 0.5px dashed var(--border-strong);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: default;
+  }
+  .addition-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .addition-controls-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    min-width: 86px;
+  }
+  .addition-controls-fields {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+  .addition-budget-group {
+    display: inline-flex;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .budget-pill {
+    font-family: var(--font);
+    font-size: 11px;
+    padding: 4px 9px;
+    background: var(--surface);
+    color: var(--text-2);
+    border: none;
+    border-right: 0.5px solid var(--border-strong);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .budget-pill:last-child { border-right: none; }
+  .budget-pill:hover { background: var(--surface-2); }
+  .budget-pill.selected { background: var(--accent); color: white; font-weight: 500; }
+  .year-select {
+    font-family: var(--font);
+    font-size: 11px;
+    padding: 4px 6px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .year-select:focus { outline: none; border-color: var(--accent); }
+  .addition-finance-row { margin-top: -2px; }
+  .finance-preview {
+    font-size: 11px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tree-instructions {
+    font-size: 11px;
+    color: var(--text-3);
+    margin: 0 0 14px;
+    font-style: italic;
+  }
+
+  /* RESULTS — right column */
+  .results-header { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 0.5px solid var(--border); }
+  .results-header .path { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .results-header .scenario { font-size: 13px; font-weight: 500; }
+
+  .result-group { margin-bottom: 14px; }
+  .result-group h4 { font-size: 10px; font-weight: 500; margin: 0 0 6px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; }
+  .metric-row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; font-size: 13px; gap: 8px; }
+  .metric-row.headline { padding: 8px 0; border-top: 0.5px dashed var(--border-strong); margin-top: 4px; }
+  .metric-row.headline .label { font-weight: 500; }
+  .metric-row.headline .value { font-size: 15px; font-weight: 500; }
+  .metric-row .label { color: var(--text-2); }
+  .metric-row .value { font-variant-numeric: tabular-nums; flex-shrink: 0; }
+  .metric-row .value.positive { color: var(--green); }
+  .metric-row .value.negative { color: var(--red); }
+
+  .horizon-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-top: 6px; }
+  .horizon-table th { font-weight: 500; font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); text-align: right; padding: 4px 4px; border-bottom: 0.5px solid var(--border); }
+  .horizon-table th:first-child { text-align: left; }
+  .horizon-table td { padding: 5px 4px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 0.5px solid var(--border); }
+  .horizon-table td:first-child { text-align: left; color: var(--text-2); }
+  .horizon-table tr:last-child td { border-bottom: none; font-weight: 500; }
+
+  .flag {
+    padding: 8px 10px;
+    font-size: 11px;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+  .flag-amber { background: var(--amber-bg); border-left: 3px solid var(--amber); color: var(--amber); }
+  .flag-red { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+
+  /* Deep dive section */
+  .deep-dive {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 0.5px dashed var(--border-strong);
+  }
+  .deep-dive h3 {
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0 0 4px;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .deep-dive .subhead {
+    font-size: 11px;
+    color: var(--text-2);
+    margin: 0 0 12px;
+  }
+  .stress-tabs {
+    display: flex;
+    gap: 4px;
+    margin: 8px 0 12px;
+    flex-wrap: wrap;
+  }
+  .stress-tab {
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-2);
+    cursor: pointer;
+    font-family: var(--font);
+  }
+  .stress-tab:hover { background: var(--surface-2); }
+  .stress-tab.active {
+    background: var(--text);
+    color: var(--surface);
+    border-color: var(--text);
+    font-weight: 500;
+  }
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    margin-bottom: 14px;
+  }
+  .chart-container.tall { height: 260px; }
+  .yearly-table {
+    width: 100%;
+    font-size: 10px;
+    border-collapse: collapse;
+    margin-top: 6px;
+  }
+  .yearly-table th {
+    font-weight: 500;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    text-align: right;
+    padding: 4px 3px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .yearly-table th:first-child { text-align: left; }
+  .yearly-table td {
+    padding: 4px 3px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .yearly-table td:first-child {
+    text-align: left;
+    color: var(--text-2);
+  }
+  .yearly-table tr.event-row { background: var(--amber-bg); }
+  .yearly-table tr.event-row td:first-child { color: var(--amber); font-weight: 500; }
+  .yearly-table td.neg { color: var(--red); }
+  .yearly-table td.pos { color: var(--green); }
+  .insight-box {
+    background: var(--surface-2);
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    font-size: 11px;
+    line-height: 1.45;
+    margin-top: 10px;
+    color: var(--text-2);
+  }
+  .insight-box strong { color: var(--text); }
+  .insight-box .num { font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+  .insight-box .num.pos { color: var(--green); }
+  .insight-box .num.neg { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<header class="topbar">
+  <div>
+    <h1>Shiloh vs Natchez — Decision Tree</h1>
+    <div class="sub">Inputs · decisions · live outcomes. Drag the column dividers to resize.</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="resetTree()">↺ Reset tree</button>
+    <button class="btn" onclick="resetAll()">⟳ Reset all</button>
+  </div>
+</header>
+
+<div class="columns" id="columns">
+
+  <!-- INPUTS COLUMN -->
+  <div class="column column-inputs" id="col-inputs">
+    <div class="column-header"><h2>Inputs</h2></div>
+    <div class="column-body">
+
+      <div class="input-section-divider">Income</div>
+      <div class="input-group">
+        <label>Andrea income (annual)<span class="hint" title="Wife's total income — W2 + S-corp distributions">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-andrea" value="250,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Kevin FA income (annual)<span class="hint" title="Current net financial advisor income">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-kevin" value="18,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Kevin FA early growth (% / yr)<span class="hint" title="Annual income growth rate during the early build-out years">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-kevinGrowth" value="40" oninput="recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Years at early growth<span class="hint" title="How many years that aggressive growth rate continues before it tapers">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="yr"><input type="number" id="i-kevinGrowthYears" value="3" min="0" max="20" step="1" oninput="recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Kevin FA mature growth (% / yr)<span class="hint" title="Sustained long-term growth rate after the early ramp tapers off (typically 3-8%)">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-kevinMatureGrowth" value="6" oninput="recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>VA disability (monthly, tax-free)<span class="hint" title="100% P&T VA disability">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-va" value="4,300" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>VA COLA (% / yr)<span class="hint" title="Annual cost-of-living adjustment for VA disability. Historically tracks Social Security COLA, averaging ~2.5%.">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-vaCola" value="2.5" step="0.25" oninput="recalc()"></div>
+      </div>
+
+      <div class="input-section-divider">Cash &amp; equity</div>
+      <div class="input-group">
+        <label>Cash on hand<span class="hint" title="Liquid cash/investments now">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-cash" value="290,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Earnest money at risk<span class="hint" title="Forfeit if you back out">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-earnest" value="20,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+
+      <div class="input-section-divider">Natchez (current home)</div>
+      <div class="input-group">
+        <label>Natchez sale (net)<span class="hint" title="Expected net proceeds after fees">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezNet" value="1,150,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Natchez mortgage balance<span class="hint" title="Current payoff">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezMort" value="578,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Natchez monthly P&amp;I<span class="hint" title="Current monthly mortgage payment on Natchez">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezPmt" value="3,200" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Natchez property tax (annual)<span class="hint" title="Actual annual property tax bill for Natchez">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezTax" value="12,650" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Natchez insurance (annual)<span class="hint" title="Homeowner's insurance premium for Natchez">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezIns" value="2,400" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Natchez maintenance (annual budget)<span class="hint" title="Estimated annual maintenance & repair budget. Industry rule of thumb is 1% of home value, but actual out-of-pocket is often lower.">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezMaint" value="6,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+
+      <div class="input-section-divider">Shiloh (new home)</div>
+      <div class="input-group">
+        <label>Shiloh purchase price<span class="hint" title="Contract price">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohPrice" value="675,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Shiloh property tax (annual)<span class="hint" title="Actual annual property tax bill for Shiloh">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohTax" value="7,425" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Shiloh insurance (annual)<span class="hint" title="Homeowner's insurance premium for Shiloh">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohIns" value="2,400" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Shiloh maintenance (annual budget)<span class="hint" title="Estimated annual maintenance & repair budget. 1976 build may warrant higher reserves.">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohMaint" value="4,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+
+      <div class="input-section-divider">Family</div>
+      <div class="input-group">
+        <label>Number of children<span class="hint" title="How many children will attend school during the planning horizon">ⓘ</span></label>
+        <div class="radio-group" id="childrenRadio">
+          <label class="radio-pill">
+            <input type="radio" name="numChildren" value="1" checked onchange="recalc()">
+            <span>1 child</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="numChildren" value="2" onchange="recalc()">
+            <span>2 children</span>
+          </label>
+        </div>
+      </div>
+      <div class="input-group" id="ageGapWrap" style="display:none;">
+        <label>Years between kids<span class="hint" title="Age gap between first and second child. Affects when second child starts K">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="yr"><input type="number" id="i-ageGap" value="3" step="1" min="1" max="6" oninput="recalc()"></div>
+      </div>
+
+      <div class="input-section-divider">Assumptions</div>
+      <div class="input-group">
+        <label>Mortgage rate<span class="hint" title="VA loan rate">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-rate" value="5.875" step="0.125" oninput="recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>HELOC / addition loan rate<span class="hint" title="Rate for financing additions if you choose to finance rather than pay cash">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-helocRate" value="8.5" step="0.125" oninput="recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Investment return<span class="hint" title="Annual return on invested cash">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-invRet" value="7" step="0.5" oninput="recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Home appreciation<span class="hint" title="Annual real estate appreciation">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-appr" value="3.5" step="0.5" oninput="recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Effective tax rate<span class="hint" title="Combined federal + state on taxable income">ⓘ</span></label>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-taxRate" value="28" step="1" oninput="recalc()"></div>
+      </div>
+      <div class="input-group">
+        <label>Breck tuition (year 1, per child)<span class="hint" title="Annual private school cost — Hopkins district requires this">ⓘ</span></label>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-breck" value="40,000" oninput="formatMoneyInput(this); recalc()"></div>
+      </div>
+
+      <div class="input-section-divider">Monthly expenses (outside housing)</div>
+      <div class="expenses-list" id="expensesList"></div>
+      <button class="add-expense" onclick="addExpense()">+ Add expense</button>
+
+    </div>
+  </div>
+
+  <div class="resizer" data-resize="inputs-tree"></div>
+
+  <!-- DECISION TREE COLUMN -->
+  <div class="column column-tree" id="col-tree">
+    <div class="column-header"><h2>Decision tree</h2></div>
+    <div class="column-body" id="treeBody"></div>
+  </div>
+
+  <div class="resizer" data-resize="tree-results"></div>
+
+  <!-- RESULTS COLUMN -->
+  <div class="column column-results" id="col-results">
+    <div class="column-header"><h2>Projected outcome</h2></div>
+    <div class="column-body" id="resultsBody"></div>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+const state = {
+  path: [],
+  stressTest: 'base', // 'base', 'andreaCut', 'kevinCut', 'both'
+  // Year offset is years from now (1 = next year, 2 = year after, etc.)
+  // Budget is in dollars.
+  additionConfig: {
+    front: { budget: 200000, yearOffset: 2, financed: false },
+    rear: { budget: 350000, yearOffset: 4, financed: false },
+    bothFront: { budget: 200000, yearOffset: 2, financed: false },
+    bothRear: { budget: 350000, yearOffset: 5, financed: false }
+  },
+  expenses: [
+    { name: 'Groceries & dining', amount: 1800 },
+    { name: 'Utilities', amount: 400 },
+    { name: 'Childcare', amount: 1800 },
+    { name: 'Transportation (gas, insurance, etc)', amount: 600 },
+    { name: 'Healthcare & insurance', amount: 500 },
+    { name: 'Subscriptions, phone, internet', amount: 300 },
+    { name: 'Discretionary (travel, gifts, etc)', amount: 1200 },
+    { name: 'Savings/retirement contributions', amount: 2000 }
+  ]
+};
+
+const tree = {
+  root: {
+    label: 'Step 1',
+    question: 'Do you continue with the Shiloh contract or back out?',
+    sub: '$20K earnest is at stake if you back out.',
+    choices: [
+      { id: 'buy', title: 'Buy Shiloh', desc: 'Continue with the contract. Sell Natchez. Move to Plymouth, Wayzata district.', badges: [['under contract', 'badge-blue']] },
+      { id: 'walkAway', title: 'Back out of contract', desc: 'Forfeit $20K earnest, stay in current home.', badges: [['$20K cost', 'badge-red']] }
+    ]
+  },
+  downPayment: {
+    label: 'Step 2a · Shiloh path',
+    question: 'How much equity goes into the Shiloh down payment?',
+    sub: 'VA loan requires at least $85K down based on your eligibility. No PMI, no funding fee. Earnest money ($20K) gets credited at closing — already deducted from the cash you bring. Leftover equity gets invested.',
+    requiresPath: ['buy'],
+    choices: [
+      { id: 'dp-all', title: 'All cash ($675K)', desc: 'Use all Natchez equity + savings. Zero mortgage.', badges: [['no mortgage', 'badge-green'], ['lowest stress', 'badge-green']], meta: { dp: 675000 } },
+      { id: 'dp-max', title: 'Max Natchez equity (~$572K)', desc: '$103K mortgage. ~$609/mo P&I. No leftover cash.', badges: [['low stress', 'badge-green']], meta: { dp: 572000 } },
+      { id: 'dp-half', title: 'Half equity ($286K)', desc: '~$389K mortgage. ~$2,300/mo P&I. ~$286K invested.', badges: [['balanced', 'badge-blue']], meta: { dp: 286000 } },
+      { id: 'dp-min', title: 'VA minimum ($85K)', desc: '$590K mortgage. ~$3,491/mo P&I. ~$487K invested for max growth.', badges: [['high leverage', 'badge-amber'], ['max upside', 'badge-blue']], meta: { dp: 85000 } }
+    ]
+  },
+  schoolPlan: {
+    label: 'Step 3a · Shiloh path',
+    question: 'School plan for your daughter?',
+    sub: 'Shiloh is in Wayzata district (#1 in MN). You may still choose private.',
+    requiresPath: ['buy'],
+    choices: [
+      { id: 'sch-public', title: 'Wayzata public schools', desc: 'Top-ranked district. Saves ~$748K nominal per child K–12 vs Breck.', badges: [['$0/yr', 'badge-green'], ['#1 in MN', 'badge-green']], meta: { school: 'public' } },
+      { id: 'sch-private', title: 'Private school (e.g. Breck)', desc: 'Pay anyway despite excellent public option.', badges: [['~$40K/yr/child', 'badge-red']], meta: { school: 'private' } }
+    ]
+  },
+  addition: {
+    label: 'Step 4a · Shiloh path',
+    question: 'Addition plan for Shiloh?',
+    sub: 'Front: 1-story, flexible bedroom layout. Rear: 2-story, vaulted living room + larger master. Configure budget and timing for each option below.',
+    requiresPath: ['buy'],
+    choices: [
+      { id: 'add-none', title: 'No addition', desc: 'Move in, see how it feels. Decide later. Max financial flexibility.', badges: [['$0', 'badge-green']], meta: { addition: 'none' } },
+      { id: 'add-front', title: 'Front addition only', desc: '20x20 1-story addition. Flexible bedroom layout.', meta: { addition: 'front' } },
+      { id: 'add-rear', title: 'Rear addition only', desc: '2-story rear addition. Grand vaulted living room + bigger master.', meta: { addition: 'rear' } },
+      { id: 'add-both', title: 'Both additions (phased)', desc: 'Front first, rear later. Most comprehensive — and most expensive.', meta: { addition: 'both' } }
+    ]
+  },
+  natchezPlan: {
+    label: 'Step 2b · Back-out path',
+    question: "What's the plan if you stay at Natchez?",
+    sub: 'You forfeit $20K. Natchez is in Hopkins district — private school becomes the realistic path.',
+    requiresPath: ['walkAway'],
+    choices: [
+      { id: 'stay-keep', title: 'Stay long-term at Natchez', desc: 'Settle in, no more searching. Plan for Breck for your daughter.', badges: [['low disruption', 'badge-green'], ['$40K/yr school', 'badge-red']], meta: { stay: 'permanent' } },
+      { id: 'stay-search', title: 'Keep searching', desc: 'Stay at Natchez for now but actively hunt for a better Shiloh-alternative.', badges: [['continued search', 'badge-amber']], meta: { stay: 'searching' } }
+    ]
+  }
+};
+
+const STEP_ORDER = ['root', 'downPayment', 'schoolPlan', 'addition', 'natchezPlan'];
+
+// ============ HELPERS ============
+function parseMoney(str) {
+  if (str === null || str === undefined) return 0;
+  const cleaned = String(str).replace(/,/g, '').trim();
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? 0 : n;
+}
+
+function formatMoneyInput(el) {
+  const oldLength = el.value.length;
+  const cursorFromEnd = oldLength - (el.selectionStart || 0);
+  const digits = el.value.replace(/[^\d]/g, '');
+  if (digits === '') { el.value = ''; return; }
+  const formatted = parseInt(digits, 10).toLocaleString('en-US');
+  el.value = formatted;
+  const newPos = Math.max(0, formatted.length - cursorFromEnd);
+  try { el.setSelectionRange(newPos, newPos); } catch (e) {}
+}
+
+function fmt(n) {
+  if (Math.abs(n) >= 1_000_000) return '$' + (n / 1_000_000).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1_000) return '$' + Math.round(n / 1_000).toLocaleString() + 'K';
+  return '$' + Math.round(n).toLocaleString();
+}
+function fmt0(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmtSigned(n) { return (n >= 0 ? '+' : '') + fmt(n); }
+
+// ============ FINANCIAL FUNCTIONS ============
+function monthlyPmt(principal, annualRate, months = 360) {
+  if (principal <= 0) return 0;
+  const r = annualRate / 12;
+  return principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+}
+
+function amortizeAfterYears(principal, annualRate, years, months = 360) {
+  if (principal <= 0) return { balance: 0, interestPaid: 0 };
+  const r = annualRate / 12;
+  const pmt = monthlyPmt(principal, annualRate, months);
+  let balance = principal;
+  let interestPaid = 0;
+  const totalMonths = Math.min(years * 12, months);
+  for (let i = 0; i < totalMonths; i++) {
+    const interest = balance * r;
+    balance = Math.max(0, balance - (pmt - interest));
+    interestPaid += interest;
+    if (balance <= 0) break;
+  }
+  return { balance, interestPaid };
+}
+
+function fvLumpSum(pv, annualRate, years) {
+  if (pv <= 0) return 0;
+  return pv * Math.pow(1 + annualRate / 12, years * 12);
+}
+
+function fvAnnuity(monthlyContrib, annualRate, years) {
+  if (monthlyContrib === 0) return 0;
+  const r = annualRate / 12;
+  const n = years * 12;
+  return monthlyContrib * ((Math.pow(1 + r, n) - 1) / r);
+}
+
+// ============ INPUTS & PATH ============
+function getInputs() {
+  const v = id => {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    return parseMoney(el.value);
+  };
+  const numChildrenRadio = document.querySelector('input[name="numChildren"]:checked');
+  const numChildren = numChildrenRadio ? parseInt(numChildrenRadio.value, 10) : 1;
+  // Toggle visibility of age gap input
+  const ageGapWrap = document.getElementById('ageGapWrap');
+  if (ageGapWrap) ageGapWrap.style.display = numChildren === 2 ? 'flex' : 'none';
+  return {
+    andrea: v('i-andrea'),
+    kevin: v('i-kevin'),
+    kevinGrowth: v('i-kevinGrowth') / 100,
+    kevinGrowthYears: v('i-kevinGrowthYears'),
+    kevinMatureGrowth: v('i-kevinMatureGrowth') / 100,
+    va: v('i-va'),
+    vaCola: v('i-vaCola') / 100,
+    cash: v('i-cash'),
+    natchezNet: v('i-natchezNet'),
+    natchezMort: v('i-natchezMort'),
+    natchezPmt: v('i-natchezPmt'),
+    natchezTax: v('i-natchezTax'),
+    natchezIns: v('i-natchezIns'),
+    natchezMaint: v('i-natchezMaint'),
+    shilohPrice: v('i-shilohPrice'),
+    shilohTax: v('i-shilohTax'),
+    shilohIns: v('i-shilohIns'),
+    shilohMaint: v('i-shilohMaint'),
+    rate: v('i-rate') / 100,
+    helocRate: v('i-helocRate') / 100,
+    invRet: v('i-invRet') / 100,
+    appr: v('i-appr') / 100,
+    earnest: v('i-earnest'),
+    taxRate: v('i-taxRate') / 100,
+    breck: v('i-breck'),
+    numChildren: numChildren,
+    ageGap: v('i-ageGap') || 3
+  };
+}
+
+function getMonthlyExpenses() {
+  return state.expenses.reduce((sum, e) => sum + parseMoney(e.amount), 0);
+}
+
+// Returns an array of {cost, yearOffset, financed} events based on the selected addition type
+function getAdditionEvents() {
+  const meta = getPathMeta();
+  const cfg = state.additionConfig;
+  if (!meta.addition || meta.addition === 'none') return [];
+  if (meta.addition === 'front') return [{ cost: cfg.front.budget, yearOffset: cfg.front.yearOffset, financed: cfg.front.financed }];
+  if (meta.addition === 'rear') return [{ cost: cfg.rear.budget, yearOffset: cfg.rear.yearOffset, financed: cfg.rear.financed }];
+  if (meta.addition === 'both') return [
+    { cost: cfg.bothFront.budget, yearOffset: cfg.bothFront.yearOffset, financed: cfg.bothFront.financed },
+    { cost: cfg.bothRear.budget, yearOffset: cfg.bothRear.yearOffset, financed: cfg.bothRear.financed }
+  ];
+  return [];
+}
+
+function getTotalAdditionCost() {
+  return getAdditionEvents().reduce((sum, e) => sum + e.cost, 0);
+}
+
+function getPathMeta() {
+  const meta = {};
+  state.path.forEach(choiceId => {
+    for (const nodeKey of Object.keys(tree)) {
+      const node = tree[nodeKey];
+      if (!node.choices) continue;
+      const choice = node.choices.find(c => c.id === choiceId);
+      if (choice && choice.meta) Object.assign(meta, choice.meta);
+    }
+  });
+  return meta;
+}
+
+function isStepActive(stepKey) {
+  const step = tree[stepKey];
+  if (!step.requiresPath) return true;
+  return step.requiresPath.every(req => state.path.includes(req));
+}
+
+function selectedChoiceForStep(stepKey) {
+  const step = tree[stepKey];
+  if (!step.choices) return null;
+  const ids = step.choices.map(c => c.id);
+  return state.path.find(id => ids.includes(id)) || null;
+}
+
+// ============ COMPUTE SCENARIO ============
+function computeScenario() {
+  const inp = getInputs();
+  const meta = getPathMeta();
+  const monthlyExpenses = getMonthlyExpenses();
+  const isBuyPath = state.path.includes('buy');
+  const isWalkPath = state.path.includes('walkAway');
+
+  const andreaNetMonthly = (inp.andrea * (1 - inp.taxRate)) / 12;
+  const kevinNetMonthly = (inp.kevin * (1 - inp.taxRate)) / 12;
+  const vaMonthly = inp.va;
+  const totalIncomeMonthly = andreaNetMonthly + kevinNetMonthly + vaMonthly;
+
+  // Helper: Kevin's annual gross income at year `y` (y=0 is current).
+  // Early years grow at kevinGrowth, then taper to kevinMatureGrowth.
+  function kevinIncomeAtYear(y) {
+    let income = inp.kevin;
+    for (let i = 1; i <= y; i++) {
+      const rate = i <= inp.kevinGrowthYears ? inp.kevinGrowth : inp.kevinMatureGrowth;
+      income = income * (1 + rate);
+    }
+    return income;
+  }
+
+  // Helper: full monthly net income at year `y` (Andrea + Kevin's grown income + VA, all net of tax for Andrea/Kevin, VA tax-free).
+  // VA disability is indexed for inflation via annual COLA. Andrea is held flat (override in inputs if needed).
+  function totalNetMonthlyAtYear(y) {
+    const k = kevinIncomeAtYear(y);
+    const vaAtYear = inp.va * Math.pow(1 + inp.vaCola, y);
+    return (inp.andrea * (1 - inp.taxRate)) / 12 + (k * (1 - inp.taxRate)) / 12 + vaAtYear;
+  }
+
+  let housing = { piti: 0, pi: 0, tax: 0, ins: 0, maint: 0, loan: 0, dp: 0, homeValue: 0, leftoverInvest: 0, additionCost: 0, schoolMonthly: 0 };
+
+  if (isBuyPath) {
+    const dp = meta.dp ?? 572000;
+    const natchezEquity = inp.natchezNet - inp.natchezMort;
+    // Cash on hand already excludes earnest ($20K is in escrow, not the bank).
+    // At closing, earnest gets credited toward the purchase — so cash needed = dp - earnest.
+    // Net cash position after closing: cash + equity - (dp - earnest)
+    const cashNeededAtClosing = dp - inp.earnest;
+    const cashAfterDP = inp.cash + natchezEquity - cashNeededAtClosing;
+    housing.dp = dp;
+    housing.loan = Math.max(0, inp.shilohPrice - dp);
+    housing.pi = monthlyPmt(housing.loan, inp.rate);
+    housing.tax = inp.shilohTax / 12;
+    housing.ins = inp.shilohIns / 12;
+    housing.maint = inp.shilohMaint / 12;
+    housing.piti = housing.pi + housing.tax + housing.ins + housing.maint;
+    housing.homeValue = inp.shilohPrice;
+    housing.leftoverInvest = Math.max(0, cashAfterDP);
+    housing.cashShortfall = cashAfterDP < 0 ? -cashAfterDP : 0;
+    housing.additionCost = getTotalAdditionCost();
+    if (meta.school === 'private') housing.schoolMonthly = (inp.breck / 12) * inp.numChildren;
+  } else if (isWalkPath) {
+    // Earnest is forfeit. Cash on hand already reflects the loss (the $20K is gone, in escrow).
+    // No further deduction needed — this is sunk cost.
+    housing.dp = 0;
+    housing.loan = inp.natchezMort;
+    housing.pi = inp.natchezPmt;
+    housing.tax = inp.natchezTax / 12;
+    housing.ins = inp.natchezIns / 12;
+    housing.maint = inp.natchezMaint / 12;
+    housing.piti = housing.pi + housing.tax + housing.ins + housing.maint;
+    housing.homeValue = inp.natchezNet;
+    housing.leftoverInvest = inp.cash;
+    housing.schoolMonthly = (inp.breck / 12) * inp.numChildren;
+  } else {
+    housing.dp = 0;
+    housing.loan = inp.natchezMort;
+    housing.pi = inp.natchezPmt;
+    housing.tax = inp.natchezTax / 12;
+    housing.ins = inp.natchezIns / 12;
+    housing.maint = inp.natchezMaint / 12;
+    housing.piti = housing.pi + housing.tax + housing.ins + housing.maint;
+    housing.homeValue = inp.natchezNet;
+    housing.leftoverInvest = inp.cash;
+  }
+
+  const totalMonthlyOut = housing.piti + monthlyExpenses + housing.schoolMonthly;
+  const excessCashFlow = totalIncomeMonthly - totalMonthlyOut;
+  const additionEvents = getAdditionEvents();
+  const HELOC_TERM_MONTHS = 180; // 15-year HELOC
+
+  // Pre-compute monthly P&I for financed additions
+  additionEvents.forEach(evt => {
+    if (evt.financed) {
+      evt.monthlyPI = monthlyPmt(evt.cost, inp.helocRate, HELOC_TERM_MONTHS);
+    } else {
+      evt.monthlyPI = 0;
+    }
+  });
+
+  // Total addition monthly cost AT PRESENT (only counts events that have already started)
+  // For monthly cash flow display, show "current" addition payments (events at yearOffset 0/1 if you've already started)
+  // Since all events are future, the "today" view shouldn't include them yet.
+  // But the projection year-by-year DOES need them.
+
+  const horizons = [1, 3, 5, 10, 20, 30];
+  const projections = horizons.map(years => {
+    const { balance, interestPaid } = amortizeAfterYears(housing.loan, inp.rate, years);
+    const homeFuture = housing.homeValue * Math.pow(1 + inp.appr, years);
+    const homeEquity = homeFuture - balance;
+    const investedGrowth = fvLumpSum(housing.leftoverInvest, inp.invRet, years);
+
+    // Year-by-year cash flow simulation (monthly is too granular; we'll do annual)
+    // Net contribution to investments each year = (excessCashFlow*12) - (financed addition P&I*12 active that year) - (cash addition draws that year)
+    let investedFromCashFlow = 0;
+    let cashAdditionImpact = 0; // Tracks compounded value of cash draws (their opportunity cost)
+    const r = inp.invRet;
+
+    for (let y = 1; y <= years; y++) {
+      // (1) Year-specific income (Kevin's income grows over time)
+      const yearIncomeMonthly = totalNetMonthlyAtYear(y);
+      // (2) School cost active in this year (depends on which kids are in K-12)
+      let yearSchoolMonthly = 0;
+      if (housing.schoolMonthly > 0) {
+        const schoolCostPerChild = inp.breck / 12;
+        const childStarts = inp.numChildren === 2 ? [3, 3 + inp.ageGap] : [3];
+        childStarts.forEach(startYr => {
+          if (y >= startYr && y < startYr + 13) yearSchoolMonthly += schoolCostPerChild;
+        });
+      }
+      // (3) Year-specific monthly excess (income minus housing minus expenses minus this year's school)
+      let yearMonthly = yearIncomeMonthly - housing.piti - monthlyExpenses - yearSchoolMonthly;
+      // (4) Subtract monthly P&I for any active financed additions
+      additionEvents.forEach(evt => {
+        if (evt.financed && y > evt.yearOffset && y <= evt.yearOffset + (HELOC_TERM_MONTHS / 12)) {
+          yearMonthly -= evt.monthlyPI;
+        }
+      });
+      const yearContribution = Math.max(0, yearMonthly) * 12;
+      // Compound this year's contribution forward to end of horizon
+      const yearsRemaining = years - y;
+      investedFromCashFlow += yearContribution * Math.pow(1 + r, yearsRemaining);
+
+      // Cash addition events happening THIS year reduce the invested balance instantly
+      additionEvents.forEach(evt => {
+        if (!evt.financed && y === evt.yearOffset) {
+          // The cost compounded forward from year y to end (opportunity cost)
+          cashAdditionImpact += evt.cost * Math.pow(1 + r, yearsRemaining);
+        }
+      });
+    }
+
+    // For financed additions, subtract any remaining HELOC balance at the horizon
+    let financedDebtRemaining = 0;
+    additionEvents.forEach(evt => {
+      if (evt.financed && years >= evt.yearOffset) {
+        // How many years of payments made by end of horizon
+        const yearsPaying = years - evt.yearOffset;
+        if (yearsPaying < HELOC_TERM_MONTHS / 12) {
+          const { balance: helocBal } = amortizeAfterYears(evt.cost, inp.helocRate, yearsPaying, HELOC_TERM_MONTHS);
+          financedDebtRemaining += helocBal;
+        }
+      }
+    });
+
+    const netWorth = homeEquity + investedGrowth + investedFromCashFlow - cashAdditionImpact - financedDebtRemaining;
+    return {
+      years, mortgageBalance: balance, interestPaid, homeValue: homeFuture, homeEquity,
+      investedTotal: investedGrowth + investedFromCashFlow - cashAdditionImpact,
+      financedDebtRemaining,
+      netWorth, excessCashFlowMonthly: excessCashFlow
+    };
+  });
+
+  return { inp, meta, housing, totalIncomeMonthly, monthlyExpenses, totalMonthlyOut, excessCashFlow, projections, isBuyPath, isWalkPath };
+}
+
+// ============ DETAILED YEAR-BY-YEAR SIMULATION ============
+// Returns rich annual data for a given stress test scenario.
+// stressOpts: { andreaCut, kevinCut, expenseShock } — multipliers (1 = no change, 0.5 = halved)
+function simulateYears(years = 10, stressOpts = {}) {
+  const inp = getInputs();
+  const meta = getPathMeta();
+  const monthlyExpenses = getMonthlyExpenses();
+  const isBuyPath = state.path.includes('buy');
+  const isWalkPath = state.path.includes('walkAway');
+  const additionEvents = getAdditionEvents();
+  const HELOC_TERM_MONTHS = 180;
+  const r = inp.invRet;
+
+  // Stress modifiers
+  const andreaMult = stressOpts.andreaCut !== undefined ? stressOpts.andreaCut : 1;
+  const kevinMult = stressOpts.kevinCut !== undefined ? stressOpts.kevinCut : 1;
+  const expenseMult = stressOpts.expenseShock !== undefined ? stressOpts.expenseShock : 1;
+
+  // Pre-compute housing
+  let housing = {};
+  let startingPortfolio = 0;
+  let homeValueStart = 0;
+  let loanStart = 0;
+  let mortgageRate = inp.rate;
+
+  if (isBuyPath) {
+    const dp = meta.dp ?? 572000;
+    const natchezEquity = inp.natchezNet - inp.natchezMort;
+    const cashNeededAtClosing = dp - inp.earnest;
+    const cashAfterDP = inp.cash + natchezEquity - cashNeededAtClosing;
+    loanStart = Math.max(0, inp.shilohPrice - dp);
+    housing = {
+      pi: monthlyPmt(loanStart, inp.rate),
+      tax: inp.shilohTax / 12,
+      ins: inp.shilohIns / 12,
+      maint: inp.shilohMaint / 12
+    };
+    startingPortfolio = Math.max(0, cashAfterDP);
+    homeValueStart = inp.shilohPrice;
+  } else if (isWalkPath) {
+    loanStart = inp.natchezMort;
+    housing = {
+      pi: inp.natchezPmt,
+      tax: inp.natchezTax / 12,
+      ins: inp.natchezIns / 12,
+      maint: inp.natchezMaint / 12
+    };
+    startingPortfolio = inp.cash;
+    homeValueStart = inp.natchezNet;
+  } else {
+    loanStart = inp.natchezMort;
+    housing = {
+      pi: inp.natchezPmt,
+      tax: inp.natchezTax / 12,
+      ins: inp.natchezIns / 12,
+      maint: inp.natchezMaint / 12
+    };
+    startingPortfolio = inp.cash;
+    homeValueStart = inp.natchezNet;
+  }
+  housing.piti = housing.pi + housing.tax + housing.ins + housing.maint;
+  const schoolFlag = (isBuyPath && meta.school === 'private') || isWalkPath;
+
+  // Pre-compute financed addition monthly payments
+  additionEvents.forEach(evt => {
+    evt.monthlyPI = evt.financed ? monthlyPmt(evt.cost, inp.helocRate, HELOC_TERM_MONTHS) : 0;
+  });
+
+  // Simulate year by year
+  const rows = [];
+  let portfolio = startingPortfolio;
+  let homeValue = homeValueStart;
+  let loanBalance = loanStart;
+
+  // Track each financed addition's remaining balance separately for accurate retirement
+  const helocBalances = additionEvents.filter(e => e.financed).map(e => ({
+    event: e,
+    balance: 0, // Activates at yearOffset
+    startYear: e.yearOffset
+  }));
+
+  for (let y = 0; y <= years; y++) {
+    // Income at year y
+    const andreaNetMonthly = (inp.andrea * andreaMult * (1 - inp.taxRate)) / 12;
+    const kevinYearIncome = (function() {
+      let income = inp.kevin;
+      for (let i = 1; i <= y; i++) {
+        const rate = i <= inp.kevinGrowthYears ? inp.kevinGrowth : inp.kevinMatureGrowth;
+        income = income * (1 + rate);
+      }
+      return income;
+    })() * kevinMult;
+    const kevinNetMonthly = (kevinYearIncome * (1 - inp.taxRate)) / 12;
+    const vaMonthly = inp.va * Math.pow(1 + inp.vaCola, y);
+    const incomeMonthly = andreaNetMonthly + kevinNetMonthly + vaMonthly;
+
+    // School cost this year
+    let schoolMonthly = 0;
+    if (schoolFlag) {
+      const perChild = inp.breck / 12;
+      const childStarts = inp.numChildren === 2 ? [3, 3 + inp.ageGap] : [3];
+      childStarts.forEach(s => { if (y >= s && y < s + 13) schoolMonthly += perChild; });
+    }
+
+    // Active addition financed P&I this year
+    let additionPaymentMonthly = 0;
+    helocBalances.forEach(hb => {
+      if (y > hb.startYear && y <= hb.startYear + HELOC_TERM_MONTHS / 12) {
+        additionPaymentMonthly += hb.event.monthlyPI;
+      }
+    });
+
+    // Cash addition draw this year (year of the event)
+    let cashDrawThisYear = 0;
+    additionEvents.forEach(evt => {
+      if (!evt.financed && y === evt.yearOffset) cashDrawThisYear += evt.cost;
+    });
+
+    // Apply expense shock
+    const expensesAdjusted = monthlyExpenses * expenseMult;
+
+    // Annual cash flow
+    const monthlyNet = incomeMonthly - housing.piti - expensesAdjusted - schoolMonthly - additionPaymentMonthly;
+    const annualNet = monthlyNet * 12;
+
+    // Snapshot before changes this year
+    const row = {
+      year: y,
+      income: incomeMonthly * 12,
+      vaIncomeAnnual: vaMonthly * 12,
+      businessIncomeAnnual: (andreaNetMonthly + kevinNetMonthly) * 12,
+      housing: housing.piti * 12,
+      expenses: expensesAdjusted * 12,
+      school: schoolMonthly * 12,
+      additionPayment: additionPaymentMonthly * 12,
+      monthlyNet,
+      annualNet,
+      portfolioStart: portfolio,
+      cashDraw: cashDrawThisYear,
+      andreaIncome: inp.andrea * andreaMult,
+      kevinIncome: kevinYearIncome
+    };
+
+    // Update portfolio: grow, add net cash flow, subtract cash draws
+    if (y > 0) {
+      portfolio = portfolio * (1 + r); // grow over the year
+      portfolio += Math.max(0, annualNet); // add positive cash flow
+      // Negative cash flow draws from portfolio
+      if (annualNet < 0) portfolio += annualNet;
+      portfolio -= cashDrawThisYear;
+      portfolio = Math.max(0, portfolio); // can't go negative
+    }
+    row.portfolioEnd = portfolio;
+
+    // Update mortgage balance
+    if (y > 0 && loanBalance > 0) {
+      const { balance: newBal } = amortizeAfterYears(loanStart, mortgageRate, y);
+      loanBalance = newBal;
+    }
+    row.mortgageBalance = loanBalance;
+
+    // Update HELOC balances
+    helocBalances.forEach(hb => {
+      if (y >= hb.startYear) {
+        const yearsPaying = y - hb.startYear;
+        if (yearsPaying < HELOC_TERM_MONTHS / 12) {
+          const { balance } = amortizeAfterYears(hb.event.cost, inp.helocRate, yearsPaying, HELOC_TERM_MONTHS);
+          hb.balance = balance;
+        } else {
+          hb.balance = 0;
+        }
+      }
+    });
+    row.helocDebt = helocBalances.reduce((s, hb) => s + hb.balance, 0);
+
+    // Home appreciation
+    if (y > 0) homeValue = homeValue * (1 + inp.appr);
+    row.homeValue = homeValue;
+    row.homeEquity = homeValue - loanBalance;
+    row.netWorth = row.homeEquity + portfolio - row.helocDebt;
+
+    rows.push(row);
+  }
+
+  return { rows, startingPortfolio, additionEvents };
+}
+
+// ============ RENDER: TREE ============
+function buildAdditionControls(choiceId) {
+  // Returns HTML for budget/year controls inside an addition choice card.
+  // For "both", we render two sets (front + rear).
+  const currentYear = new Date().getFullYear();
+  const cfg = state.additionConfig;
+
+  function renderSet(label, configKey, budgetOptions) {
+    const c = cfg[configKey];
+    let html = `<div class="addition-controls-row">`;
+    html += `<div class="addition-controls-label">${label}</div>`;
+    html += `<div class="addition-controls-fields">`;
+    // Budget pill toggles
+    html += `<div class="addition-budget-group">`;
+    budgetOptions.forEach(b => {
+      const sel = c.budget === b ? 'selected' : '';
+      html += `<button class="budget-pill ${sel}" onclick="event.stopPropagation(); setAdditionBudget('${configKey}', ${b})">$${(b/1000).toFixed(0)}K</button>`;
+    });
+    html += `</div>`;
+    // Year selector
+    html += `<select class="year-select" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setAdditionYear('${configKey}', parseInt(this.value))">`;
+    for (let y = 1; y <= 5; y++) {
+      const sel = c.yearOffset === y ? 'selected' : '';
+      html += `<option value="${y}" ${sel}>${currentYear + y} (yr ${y})</option>`;
+    }
+    html += `</select>`;
+    html += `</div></div>`;
+    // Cash vs finance toggle on its own row
+    html += `<div class="addition-controls-row addition-finance-row">`;
+    html += `<div class="addition-controls-label">Pay with</div>`;
+    html += `<div class="addition-controls-fields">`;
+    html += `<div class="addition-budget-group">`;
+    html += `<button class="budget-pill ${!c.financed ? 'selected' : ''}" onclick="event.stopPropagation(); setAdditionFinanced('${configKey}', false)">Cash</button>`;
+    html += `<button class="budget-pill ${c.financed ? 'selected' : ''}" onclick="event.stopPropagation(); setAdditionFinanced('${configKey}', true)">Finance (HELOC)</button>`;
+    html += `</div>`;
+    // Show monthly P&I preview if financed
+    if (c.financed) {
+      const inp = getInputs();
+      const heloc = monthlyPmt(c.budget, inp.helocRate, 180);
+      html += `<span class="finance-preview">${fmt0(heloc)}/mo × 15 yr</span>`;
+    }
+    html += `</div></div>`;
+    return html;
+  }
+
+  if (choiceId === 'add-front') return renderSet('Front addition', 'front', [150000, 200000, 250000]);
+  if (choiceId === 'add-rear') return renderSet('Rear addition', 'rear', [300000, 350000, 400000]);
+  if (choiceId === 'add-both') return renderSet('Front first', 'bothFront', [150000, 200000, 250000]) + renderSet('Then rear', 'bothRear', [300000, 350000, 400000]);
+  return '';
+}
+
+function setAdditionBudget(key, amount) {
+  state.additionConfig[key].budget = amount;
+  renderTree();
+  renderResults();
+}
+
+function setAdditionYear(key, year) {
+  state.additionConfig[key].yearOffset = year;
+  renderTree();
+  renderResults();
+}
+
+function setAdditionFinanced(key, financed) {
+  state.additionConfig[key].financed = financed;
+  renderTree();
+  renderResults();
+}
+
+function buildAdditionSummary(choiceId) {
+  // Quick badge-style summary of current config for addition choices
+  const cfg = state.additionConfig;
+  const currentYear = new Date().getFullYear();
+  let parts = [];
+  if (choiceId === 'add-front') {
+    parts.push(['$' + (cfg.front.budget/1000).toFixed(0) + 'K', 'badge-amber']);
+    parts.push([(currentYear + cfg.front.yearOffset).toString(), 'badge-gray']);
+    parts.push([cfg.front.financed ? 'financed' : 'cash', cfg.front.financed ? 'badge-blue' : 'badge-green']);
+  } else if (choiceId === 'add-rear') {
+    parts.push(['$' + (cfg.rear.budget/1000).toFixed(0) + 'K', 'badge-amber']);
+    parts.push([(currentYear + cfg.rear.yearOffset).toString(), 'badge-gray']);
+    parts.push([cfg.rear.financed ? 'financed' : 'cash', cfg.rear.financed ? 'badge-blue' : 'badge-green']);
+  } else if (choiceId === 'add-both') {
+    const total = cfg.bothFront.budget + cfg.bothRear.budget;
+    parts.push(['$' + (total/1000).toFixed(0) + 'K total', 'badge-red']);
+    const cashCount = (!cfg.bothFront.financed ? 1 : 0) + (!cfg.bothRear.financed ? 1 : 0);
+    if (cashCount === 2) parts.push(['both cash', 'badge-green']);
+    else if (cashCount === 0) parts.push(['both financed', 'badge-blue']);
+    else parts.push(['mixed', 'badge-amber']);
+  } else if (choiceId === 'add-none') {
+    parts.push(['$0', 'badge-green']);
+  }
+  return parts.map(([txt, cls]) => `<span class="badge ${cls}">${txt}</span>`).join('');
+}
+
+function renderTree() {
+  const body = document.getElementById('treeBody');
+  let html = '<p class="tree-instructions">All steps are visible. Click a choice to select it — later steps unlock as needed. Click the same choice again to deselect it.</p>';
+
+  STEP_ORDER.forEach(stepKey => {
+    const step = tree[stepKey];
+    if (!step.choices) return;
+    const active = isStepActive(stepKey);
+    const selectedId = selectedChoiceForStep(stepKey);
+
+    let stepNumClass = 'step-number';
+    if (active && selectedId) stepNumClass += ' complete';
+    else if (active) stepNumClass += ' active';
+
+    html += `<div class="tree-step ${active ? '' : 'locked'}">`;
+    html += `<div class="step-header"><span class="${stepNumClass}">${step.label}</span></div>`;
+    html += `<p class="step-question">${step.question}</p>`;
+    html += `<p class="step-sub">${step.sub}</p>`;
+    html += `<div class="choices">`;
+    step.choices.forEach(choice => {
+      const isSelected = choice.id === selectedId;
+      const isDisabled = !active;
+      // For addition step, use dynamic summary badges based on current config
+      const isAdditionChoice = stepKey === 'addition';
+      const badgesHtml = isAdditionChoice
+        ? buildAdditionSummary(choice.id)
+        : (choice.badges || []).map(([txt, cls]) => `<span class="badge ${cls}">${txt}</span>`).join('');
+      const onclick = isDisabled ? '' : `onclick="selectChoice('${stepKey}', '${choice.id}')"`;
+      const controlsHtml = (isAdditionChoice && isSelected && choice.id !== 'add-none') ? buildAdditionControls(choice.id) : '';
+      html += `
+        <div class="choice ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}" ${onclick}>
+          <div class="choice-title">${choice.title}</div>
+          <div class="choice-desc">${choice.desc}</div>
+          ${badgesHtml ? `<div class="choice-meta">${badgesHtml}</div>` : ''}
+          ${controlsHtml ? `<div class="addition-controls" onclick="event.stopPropagation()">${controlsHtml}</div>` : ''}
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+  });
+
+  body.innerHTML = html;
+}
+
+function selectChoice(stepKey, choiceId) {
+  const step = tree[stepKey];
+  const stepChoiceIds = step.choices.map(c => c.id);
+  const alreadySelected = state.path.find(id => stepChoiceIds.includes(id));
+
+  if (alreadySelected === choiceId) {
+    // Clicking the same choice = deselect, and clear everything downstream
+    const idx = state.path.indexOf(choiceId);
+    state.path = state.path.slice(0, idx);
+  } else {
+    if (alreadySelected) {
+      const idx = state.path.indexOf(alreadySelected);
+      state.path = state.path.slice(0, idx);
+    }
+    state.path.push(choiceId);
+    // Re-validate downstream choices
+    state.path = state.path.filter((id, i, arr) => {
+      const partialPath = arr.slice(0, i + 1);
+      for (const k of Object.keys(tree)) {
+        const node = tree[k];
+        if (!node.choices) continue;
+        if (node.choices.some(c => c.id === id)) {
+          if (!node.requiresPath) return true;
+          return node.requiresPath.every(req => partialPath.includes(req));
+        }
+      }
+      return true;
+    });
+  }
+
+  renderTree();
+  renderResults();
+}
+
+function resetTree() {
+  state.path = [];
+  renderTree();
+  renderResults();
+}
+
+function resetAll() {
+  if (!confirm('Reset all inputs and decisions to defaults?')) return;
+  location.reload();
+}
+
+// ============ RENDER: RESULTS ============
+function renderResults() {
+  const container = document.getElementById('resultsBody');
+  const s = computeScenario();
+
+  let pathLabel = state.path.length === 0 ? 'No decisions yet — showing current state (Natchez)' : '';
+  if (state.path.length > 0) {
+    if (s.isBuyPath) pathLabel = 'Buying Shiloh';
+    else if (s.isWalkPath) pathLabel = 'Staying at Natchez';
+    const meta = s.meta;
+    if (meta.dp !== undefined) {
+      pathLabel += ` · $${Math.round(meta.dp/1000)}K down`;
+    }
+    if (meta.school === 'public') pathLabel += ' · public';
+    if (meta.school === 'private') pathLabel += ' · private';
+    if (meta.addition === 'front') pathLabel += ' · front add';
+    if (meta.addition === 'rear') pathLabel += ' · rear add';
+    if (meta.addition === 'both') pathLabel += ' · both adds';
+  }
+
+  let html = `
+    <div class="results-header">
+      <div class="path">Current scenario</div>
+      <div class="scenario">${pathLabel}</div>
+    </div>
+  `;
+
+  html += `
+    <div class="result-group">
+      <h4>Monthly cash flow</h4>
+      <div class="metric-row"><span class="label">Total income (net)</span><span class="value positive">${fmt0(s.totalIncomeMonthly)}</span></div>
+      <div class="metric-row"><span class="label">Housing (PITI+M)</span><span class="value">${fmt0(s.housing.piti)}</span></div>
+      ${s.housing.schoolMonthly > 0 ? `<div class="metric-row"><span class="label">Private school</span><span class="value negative">${fmt0(s.housing.schoolMonthly)}</span></div>` : ''}
+      <div class="metric-row"><span class="label">Other expenses</span><span class="value">${fmt0(s.monthlyExpenses)}</span></div>
+      <div class="metric-row headline"><span class="label">Excess cash flow</span><span class="value ${s.excessCashFlow >= 0 ? 'positive' : 'negative'}">${fmtSigned(s.excessCashFlow)}</span></div>
+    </div>
+  `;
+
+  if (s.housing.loan > 0 || state.path.length > 0) {
+    html += `
+      <div class="result-group">
+        <h4>Housing breakdown</h4>
+        <div class="metric-row"><span class="label">Loan amount</span><span class="value">${fmt(s.housing.loan)}</span></div>
+        <div class="metric-row"><span class="label">P&amp;I</span><span class="value">${fmt0(s.housing.pi)}</span></div>
+        <div class="metric-row"><span class="label">Property tax</span><span class="value">${fmt0(s.housing.tax)}</span></div>
+        <div class="metric-row"><span class="label">Insurance + maint</span><span class="value">${fmt0(s.housing.ins + s.housing.maint)}</span></div>
+      </div>
+    `;
+  }
+
+  if (s.isBuyPath) {
+    const natchezEquity = s.inp.natchezNet - s.inp.natchezMort;
+    const cashNeededAtClosing = Math.max(0, s.housing.dp - s.inp.earnest);
+    html += `
+      <div class="result-group">
+        <h4>Closing & cash position</h4>
+        <div class="metric-row"><span class="label">Down payment</span><span class="value">${fmt(s.housing.dp)}</span></div>
+        <div class="metric-row"><span class="label">Earnest credit at closing</span><span class="value positive">−${fmt(s.inp.earnest)}</span></div>
+        <div class="metric-row"><span class="label">Cash needed at closing</span><span class="value">${fmt(cashNeededAtClosing)}</span></div>
+        <div class="metric-row"><span class="label">Natchez equity unlocked</span><span class="value positive">${fmt(natchezEquity)}</span></div>
+        <div class="metric-row"><span class="label">Cash on hand</span><span class="value positive">${fmt(s.inp.cash)}</span></div>
+        <div class="metric-row headline">
+          <span class="label">${s.housing.cashShortfall > 0 ? 'Cash shortfall' : 'Leftover to invest'}</span>
+          <span class="value ${s.housing.cashShortfall > 0 ? 'negative' : 'positive'}">${s.housing.cashShortfall > 0 ? '−' + fmt(s.housing.cashShortfall) : fmt(s.housing.leftoverInvest)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  html += `
+    <div class="result-group">
+      <h4>Net worth projection</h4>
+      <table class="horizon-table">
+        <thead>
+          <tr><th>Yr</th><th>Home eq</th><th>Invest</th><th>Net worth</th></tr>
+        </thead>
+        <tbody>
+  `;
+  s.projections.forEach(p => {
+    html += `<tr><td>${p.years}</td><td>${fmt(p.homeEquity)}</td><td>${fmt(p.investedTotal)}</td><td>${fmt(p.netWorth)}</td></tr>`;
+  });
+  html += `</tbody></table></div>`;
+
+  if (s.housing.cashShortfall > 0) {
+    html += `<div class="flag flag-red"><strong>⚠ Cash shortfall at closing:</strong> This scenario requires ${fmt(s.housing.cashShortfall)} more than you have available between cash on hand and Natchez equity. You'd need to bring additional funds, finance differently, or pick a lower down payment.</div>`;
+  }
+  if (s.excessCashFlow < 0) {
+    html += `<div class="flag flag-red"><strong>⚠ Negative cash flow</strong> — expenses exceed income by ${fmt(-s.excessCashFlow)}/mo.</div>`;
+  }
+  if (s.housing.schoolMonthly > 0) {
+    const totalSchoolPerChild = (s.inp.breck) * 13;
+    const totalSchool = totalSchoolPerChild * s.inp.numChildren;
+    const childWord = s.inp.numChildren === 1 ? 'child' : 'children';
+    html += `<div class="flag flag-red"><strong>Private school impact:</strong> ~${fmt(totalSchool)} nominal K–12 for ${s.inp.numChildren} ${childWord}${s.inp.numChildren === 2 ? ` (${s.inp.ageGap}-yr age gap)` : ''}.</div>`;
+  }
+  if (s.housing.additionCost > 0) {
+    const events = getAdditionEvents();
+    const currentYear = new Date().getFullYear();
+    const eventDescriptions = events.map(e => {
+      const label = `${fmt(e.cost)} in ${currentYear + e.yearOffset}`;
+      if (e.financed) {
+        const monthly = monthlyPmt(e.cost, s.inp.helocRate, 180);
+        return `${label} (financed @ ${fmt0(monthly)}/mo × 15 yr)`;
+      }
+      return `${label} (cash)`;
+    }).join(' + ');
+    html += `<div class="flag flag-amber"><strong>Addition plan:</strong> ${eventDescriptions}. Total ${fmt(s.housing.additionCost)}.</div>`;
+  }
+  if (s.housing.loan > 500000 && s.excessCashFlow < 3000) {
+    html += `<div class="flag flag-amber"><strong>High leverage:</strong> Large mortgage with limited cash flow margin.</div>`;
+  }
+
+  // Deep dive section — only show when a path is selected
+  if (state.path.length > 0) {
+    html += `
+      <div class="deep-dive">
+        <h3>5-year deep dive</h3>
+        <p class="subhead">Visualize cash flow, portfolio, and stress test scenarios.</p>
+        <div class="stress-tabs">
+          <button class="stress-tab ${state.stressTest === 'base' ? 'active' : ''}" onclick="setStress('base')">Base case</button>
+          <button class="stress-tab ${state.stressTest === 'andreaCut' ? 'active' : ''}" onclick="setStress('andreaCut')">Andrea −50%</button>
+          <button class="stress-tab ${state.stressTest === 'kevinCut' ? 'active' : ''}" onclick="setStress('kevinCut')">Kevin loses biz</button>
+          <button class="stress-tab ${state.stressTest === 'both' ? 'active' : ''}" onclick="setStress('both')">Both business incomes hit</button>
+        </div>
+        <p style="font-size: 10px; color: var(--text-3); margin: 0 0 12px; font-style: italic;">VA disability is permanent and inflation-indexed — preserved across all stress tests. Only business incomes are stressed.</p>
+        <h4 style="font-size:11px; font-weight:500; margin: 10px 0 4px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em;">Annual cash flow margin</h4>
+        <div class="chart-container"><canvas id="cashFlowChart"></canvas></div>
+        <h4 style="font-size:11px; font-weight:500; margin: 16px 0 4px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em;">Investment portfolio</h4>
+        <div class="chart-container"><canvas id="portfolioChart"></canvas></div>
+        <h4 style="font-size:11px; font-weight:500; margin: 16px 0 4px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em;">Year-by-year detail</h4>
+        <div style="overflow-x:auto;"><table class="yearly-table" id="yearlyTable"></table></div>
+        <div id="deepDiveInsight"></div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+  
+  // Render charts after DOM is in place
+  if (state.path.length > 0) {
+    renderDeepDive();
+  }
+}
+
+function recalc() { renderResults(); }
+
+function setStress(s) {
+  state.stressTest = s;
+  renderResults();
+}
+
+// Chart instances to destroy/recreate on each render
+let cashFlowChartInstance = null;
+let portfolioChartInstance = null;
+
+function getStressOpts() {
+  switch (state.stressTest) {
+    case 'andreaCut': return { andreaCut: 0.5, kevinCut: 1 };
+    case 'kevinCut': return { andreaCut: 1, kevinCut: 0 };
+    case 'both': return { andreaCut: 0.5, kevinCut: 0 };
+    default: return {};
+  }
+}
+
+function renderDeepDive() {
+  const HORIZON = 10; // simulate 10 years so we get more context, but charts focus on 5
+  const baseSim = simulateYears(HORIZON, {});
+  const stressSim = simulateYears(HORIZON, getStressOpts());
+  const data = state.stressTest === 'base' ? baseSim : stressSim;
+  const rows = data.rows;
+
+  // Get color from CSS variable (with fallbacks)
+  const css = getComputedStyle(document.documentElement);
+  const green = '#3B6D11';
+  const greenBg = '#EAF3DE';
+  const red = '#A32D2D';
+  const redBg = '#FCEBEB';
+  const amber = '#854F0B';
+  const amberBg = '#FAEEDA';
+  const blue = '#185FA5';
+  const blueBg = '#E6F1FB';
+  const textColor = css.getPropertyValue('--text-2').trim() || '#5F5E5A';
+  const gridColor = 'rgba(0,0,0,0.06)';
+
+  Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif';
+  Chart.defaults.font.size = 10;
+  Chart.defaults.color = textColor;
+
+  // === CASH FLOW CHART (stacked: income components positive, expenses negative, net line) ===
+  if (cashFlowChartInstance) cashFlowChartInstance.destroy();
+  const labels = rows.slice(0, 6).map(r => `Yr ${r.year}`);
+  const housingData = rows.slice(0, 6).map(r => -(r.housing) / 1000);
+  const expensesData = rows.slice(0, 6).map(r => -(r.expenses) / 1000);
+  const schoolData = rows.slice(0, 6).map(r => -(r.school) / 1000);
+  const additionPaymentData = rows.slice(0, 6).map(r => -(r.additionPayment) / 1000);
+  const netData = rows.slice(0, 6).map(r => r.annualNet / 1000);
+  // Split income for visualization: VA (permanent floor) shown distinct from business income (stressable)
+  const vaIncomeData = rows.slice(0, 6).map(r => r.vaIncomeAnnual / 1000);
+  const businessIncomeData = rows.slice(0, 6).map(r => r.businessIncomeAnnual / 1000);
+
+  const ctx1 = document.getElementById('cashFlowChart');
+  if (ctx1) {
+    cashFlowChartInstance = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'VA disability (permanent)', data: vaIncomeData, backgroundColor: '#9FE1CB', borderColor: '#0F6E56', borderWidth: 1, stack: 'income' },
+          { label: 'Business income (Andrea + Kevin)', data: businessIncomeData, backgroundColor: greenBg, borderColor: green, borderWidth: 1, stack: 'income' },
+          { label: 'Housing', data: housingData, backgroundColor: blueBg, borderColor: blue, borderWidth: 1, stack: 'expenses' },
+          { label: 'Other expenses', data: expensesData, backgroundColor: redBg, borderColor: red, borderWidth: 1, stack: 'expenses' },
+          { label: 'Private school', data: schoolData, backgroundColor: amberBg, borderColor: amber, borderWidth: 1, stack: 'expenses' },
+          { label: 'Addition P&I', data: additionPaymentData, backgroundColor: '#F4C0D1', borderColor: '#993556', borderWidth: 1, stack: 'expenses' },
+          { label: 'Net margin', data: netData, type: 'line', borderColor: '#1F1F1E', backgroundColor: '#1F1F1E', borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: false, stack: 'net' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: $${Math.round(ctx.parsed.y)}K`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: { grid: { color: gridColor }, ticks: { font: { size: 10 }, callback: v => `$${v}K` } }
+        }
+      }
+    });
+  }
+
+  // === PORTFOLIO CHART (line over time, addition events marked) ===
+  if (portfolioChartInstance) portfolioChartInstance.destroy();
+  const portfolioLabels = rows.map(r => `Yr ${r.year}`);
+  const portfolioData = rows.map(r => r.portfolioEnd / 1000);
+  const helocData = rows.map(r => -r.helocDebt / 1000);
+  // Mark addition events
+  const eventMarkers = rows.map(r => r.cashDraw > 0 ? r.portfolioEnd / 1000 : null);
+
+  const ctx2 = document.getElementById('portfolioChart');
+  if (ctx2) {
+    portfolioChartInstance = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: portfolioLabels,
+        datasets: [
+          {
+            label: 'Investment portfolio',
+            data: portfolioData,
+            borderColor: green,
+            backgroundColor: greenBg,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.2,
+            pointRadius: 3,
+            pointHoverRadius: 6
+          },
+          {
+            label: 'HELOC debt',
+            data: helocData,
+            borderColor: red,
+            backgroundColor: redBg,
+            borderWidth: 1.5,
+            fill: true,
+            tension: 0.2,
+            pointRadius: 2,
+            hidden: helocData.every(v => v === 0)
+          },
+          {
+            label: 'Cash addition draw',
+            data: eventMarkers,
+            borderColor: amber,
+            backgroundColor: amber,
+            borderWidth: 0,
+            pointRadius: 8,
+            pointHoverRadius: 10,
+            pointStyle: 'triangle',
+            showLine: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: $${Math.round(ctx.parsed.y)}K`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: { grid: { color: gridColor }, ticks: { font: { size: 10 }, callback: v => `$${v}K` } }
+        }
+      }
+    });
+  }
+
+  // === YEAR-BY-YEAR TABLE ===
+  const tableEl = document.getElementById('yearlyTable');
+  if (tableEl) {
+    let tbl = `<thead><tr>
+      <th>Yr</th><th>Income</th><th>Housing</th><th>Expenses</th><th>School</th><th>Add P&amp;I</th><th>Net/mo</th><th>Portfolio</th><th>NW</th>
+    </tr></thead><tbody>`;
+    const showYears = Math.min(rows.length, 11); // 0-10
+    for (let i = 0; i < showYears; i++) {
+      const r = rows[i];
+      const hasEvent = r.cashDraw > 0;
+      const netClass = r.monthlyNet < 0 ? 'neg' : (r.monthlyNet > 1000 ? 'pos' : '');
+      const monthly = Math.round(r.monthlyNet);
+      tbl += `<tr ${hasEvent ? 'class="event-row"' : ''}>
+        <td>${r.year}${hasEvent ? ` ⚡` : ''}</td>
+        <td>${fmt0(r.income/12)}</td>
+        <td>${fmt0(r.housing/12)}</td>
+        <td>${fmt0(r.expenses/12)}</td>
+        <td>${r.school > 0 ? fmt0(r.school/12) : '—'}</td>
+        <td>${r.additionPayment > 0 ? fmt0(r.additionPayment/12) : '—'}</td>
+        <td class="${netClass}">${(monthly >= 0 ? '+' : '') + fmt0(monthly)}</td>
+        <td>${fmt(r.portfolioEnd)}</td>
+        <td>${fmt(r.netWorth)}</td>
+      </tr>`;
+    }
+    tbl += `</tbody>`;
+    tableEl.innerHTML = tbl;
+  }
+
+  // === INSIGHT BOX ===
+  const insightEl = document.getElementById('deepDiveInsight');
+  if (insightEl) {
+    insightEl.innerHTML = buildInsight(baseSim, stressSim);
+  }
+}
+
+function buildInsight(baseSim, stressSim) {
+  const inp = getInputs();
+  const baseRows = baseSim.rows;
+  const stressRows = stressSim.rows;
+  const isStressed = state.stressTest !== 'base';
+  const data = isStressed ? stressRows : baseRows;
+  const additionEvents = baseSim.additionEvents;
+
+  // Key metrics
+  const yr5 = data[5];
+  const yr10 = data[10];
+  const minMonthly = Math.min(...data.slice(0, 6).map(r => r.monthlyNet));
+  const minYear = data.slice(0, 6).find(r => r.monthlyNet === minMonthly);
+  const totalAdditions = additionEvents.reduce((s, e) => s + e.cost, 0);
+
+  // Self-fund check: does investment growth cover additions?
+  const r = inp.invRet;
+  const startPortfolio = baseSim.rows[0].portfolioStart;
+  const passiveGrowth5y = startPortfolio * (Math.pow(1 + r, 5) - 1); // 5-yr passive growth on starting balance
+  const canSelfFund = passiveGrowth5y >= totalAdditions;
+
+  let html = '<div class="insight-box">';
+  if (isStressed) {
+    const stressLabel = {
+      andreaCut: 'Andrea\'s income drops 50% (VA preserved)',
+      kevinCut: 'Kevin\'s FA business fails (VA preserved)',
+      both: 'Both business incomes hit (VA preserved)'
+    }[state.stressTest];
+    html += `<strong>Stress test: ${stressLabel}.</strong><br>`;
+    const worstMonth = minMonthly < 0 ? 'negative' : 'positive';
+    html += `Worst monthly margin in 5 years: <span class="num ${minMonthly < 0 ? 'neg' : 'pos'}">${minMonthly >= 0 ? '+' : ''}${fmt0(minMonthly)}/mo</span> in year ${minYear.year}. `;
+    if (minMonthly < 0) {
+      const portfolioAtMin = baseSim.rows[minYear.year].portfolioEnd;
+      const monthsOfRunway = portfolioAtMin > 0 ? Math.round(portfolioAtMin / (-minMonthly)) : 0;
+      html += `Even at the worst, your investment portfolio (<span class="num">${fmt(portfolioAtMin)}</span>) gives you <span class="num">${monthsOfRunway} months</span> of runway to draw down from.`;
+    } else {
+      html += `You'd still be cash-flow positive even in this scenario — driven largely by your <span class="num">${fmt0(inp.va * Math.pow(1 + inp.vaCola, 5) * 12)}</span>/yr VA disability floor.`;
+    }
+  } else {
+    html += `<strong>Base case insights:</strong><br>`;
+    html += `Year 5 portfolio: <span class="num">${fmt(yr5.portfolioEnd)}</span>. Year 5 net worth: <span class="num">${fmt(yr5.netWorth)}</span>. `;
+    if (totalAdditions > 0) {
+      if (canSelfFund) {
+        html += `Your starting portfolio's 5-yr passive growth (<span class="num pos">+${fmt(passiveGrowth5y)}</span>) <strong>exceeds</strong> the cost of all additions (<span class="num">${fmt(totalAdditions)}</span>) — meaning investment returns alone could fund them without touching principal.`;
+      } else {
+        const shortfall = totalAdditions - passiveGrowth5y;
+        html += `5-yr passive growth (<span class="num">${fmt(passiveGrowth5y)}</span>) covers <span class="num">${Math.round(passiveGrowth5y / totalAdditions * 100)}%</span> of the <span class="num">${fmt(totalAdditions)}</span> in additions. You'd need <span class="num neg">${fmt(shortfall)}</span> more from cash flow or principal.`;
+      }
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+// ============ EXPENSES ============
+function renderExpenses() {
+  const container = document.getElementById('expensesList');
+  let html = '';
+  state.expenses.forEach((exp, idx) => {
+    const amountFormatted = (parseFloat(exp.amount) || 0).toLocaleString('en-US');
+    html += `
+      <div class="expense-row">
+        <input type="text" value="${exp.name.replace(/"/g, '&quot;')}" placeholder="Expense name" oninput="updateExpenseName(${idx}, this.value)">
+        <div class="input-prefix"><input type="text" inputmode="numeric" value="${amountFormatted}" placeholder="0" oninput="formatMoneyInput(this); updateExpenseAmount(${idx}, this.value)"></div>
+        <button class="remove-btn" onclick="removeExpense(${idx})" title="Remove">×</button>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function addExpense() {
+  state.expenses.push({ name: '', amount: 0 });
+  renderExpenses();
+  recalc();
+}
+
+function removeExpense(idx) {
+  state.expenses.splice(idx, 1);
+  renderExpenses();
+  recalc();
+}
+
+function updateExpenseName(idx, value) {
+  state.expenses[idx].name = value;
+}
+
+function updateExpenseAmount(idx, value) {
+  state.expenses[idx].amount = parseMoney(value);
+  recalc();
+}
+
+// ============ RESIZING ============
+function initResizers() {
+  const resizers = document.querySelectorAll('.resizer');
+  const colInputs = document.getElementById('col-inputs');
+  const colResults = document.getElementById('col-results');
+  const columns = document.getElementById('columns');
+
+  resizers.forEach(resizer => {
+    let startX = 0;
+    let startWidth = 0;
+    let target = null;
+    let direction = null;
+
+    const onDown = (e) => {
+      startX = e.clientX;
+      direction = resizer.dataset.resize;
+      if (direction === 'inputs-tree') {
+        target = colInputs;
+        startWidth = colInputs.getBoundingClientRect().width;
+      } else if (direction === 'tree-results') {
+        target = colResults;
+        startWidth = colResults.getBoundingClientRect().width;
+      }
+      document.body.classList.add('resizing');
+      resizer.classList.add('active');
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      e.preventDefault();
+    };
+
+    const onMove = (e) => {
+      const dx = e.clientX - startX;
+      let newWidth;
+      if (direction === 'inputs-tree') {
+        newWidth = Math.max(220, Math.min(600, startWidth + dx));
+      } else if (direction === 'tree-results') {
+        newWidth = Math.max(260, Math.min(700, startWidth - dx));
+      }
+      const colsWidth = columns.getBoundingClientRect().width;
+      const otherCol = (direction === 'inputs-tree' ? colResults : colInputs).getBoundingClientRect().width;
+      const resizerWidth = 12;
+      const centerWidth = colsWidth - newWidth - otherCol - resizerWidth;
+      if (centerWidth < 280) return;
+      target.style.width = newWidth + 'px';
+    };
+
+    const onUp = () => {
+      document.body.classList.remove('resizing');
+      resizer.classList.remove('active');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    resizer.addEventListener('mousedown', onDown);
+  });
+}
+
+// ============ INIT ============
+renderExpenses();
+renderTree();
+renderResults();
+initResizers();
+</script>
+
+</body>
+</html>
