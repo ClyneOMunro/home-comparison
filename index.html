@@ -36,9 +36,9 @@
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; overflow: hidden; }
-
+ 
   .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
-
+ 
   /* HEADER */
   header.topbar {
     background: var(--surface);
@@ -54,7 +54,7 @@
   .btn-row { display: flex; gap: 8px; }
   .btn { font-size: 12px; padding: 6px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; font-family: var(--font); }
   .btn:hover { background: var(--surface-2); }
-
+ 
   /* 3-COLUMN LAYOUT */
   .columns {
     flex: 1;
@@ -72,7 +72,7 @@
   .column-inputs { width: 340px; }
   .column-tree { flex: 1; min-width: 360px; background: var(--bg); }
   .column-results { width: 380px; }
-
+ 
   .resizer {
     width: 6px;
     background: transparent;
@@ -98,7 +98,7 @@
   body.resizing { cursor: col-resize; user-select: none; }
   body.resizing * { pointer-events: none; }
   body.resizing .resizer { pointer-events: all; }
-
+ 
   .column-header {
     position: sticky;
     top: 0;
@@ -109,9 +109,9 @@
   }
   .column-tree .column-header { background: var(--bg); }
   .column-header h2 { font-size: 11px; font-weight: 500; margin: 0; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
-
+ 
   .column-body { padding: 16px; }
-
+ 
   /* INPUTS — left column */
   .input-group { margin-bottom: 12px; display: flex; flex-direction: column; }
   .input-group label { font-size: 11px; color: var(--text-2); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
@@ -126,7 +126,7 @@
   .input-suffix { position: relative; }
   .input-group .input-suffix input { padding-right: 24px; }
   .input-suffix::after { content: attr(data-suffix); position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-2); pointer-events: none; z-index: 1; }
-
+ 
   .input-section-divider {
     font-size: 10px;
     text-transform: uppercase;
@@ -138,7 +138,7 @@
     border-bottom: 0.5px solid var(--border);
   }
   .input-section-divider:first-child { margin-top: 0; }
-
+ 
   /* Expenses */
   .expenses-list { display: flex; flex-direction: column; gap: 6px; }
   .expense-row { display: grid; grid-template-columns: 1fr 110px 28px; gap: 6px; align-items: center; }
@@ -149,7 +149,7 @@
   .expense-row .remove-btn:hover { background: var(--red-bg); color: var(--red); }
   .add-expense { font-size: 12px; padding: 6px 12px; border: 0.5px dashed var(--border-strong); border-radius: var(--radius-sm); background: transparent; color: var(--text-2); cursor: pointer; margin-top: 8px; width: 100%; }
   .add-expense:hover { background: var(--surface-2); }
-
+ 
   /* DECISION TREE — middle column, all steps visible */
   .tree-step {
     background: var(--surface);
@@ -180,7 +180,7 @@
   .step-number.complete { background: var(--green); color: white; }
   .step-question { font-size: 14px; font-weight: 500; margin: 0 0 2px; }
   .step-sub { font-size: 12px; color: var(--text-2); margin: 0 0 10px; }
-
+ 
   .choices { display: flex; flex-direction: column; gap: 8px; }
   .choice {
     border: 1px solid var(--border-strong);
@@ -204,7 +204,7 @@
   .badge-red { background: var(--red-bg); color: var(--red); }
   .badge-blue { background: var(--blue-bg); color: var(--blue); }
   .badge-gray { background: var(--surface-2); color: var(--text-2); }
-
+ 
   /* Radio pill group (e.g. children count) */
   .radio-group {
     display: inline-flex;
@@ -240,7 +240,7 @@
     color: white;
     font-weight: 500;
   }
-
+ 
   /* Addition controls (inline within choice card when selected) */
   .addition-controls {
     margin-top: 10px;
@@ -309,19 +309,19 @@
     color: var(--text-2);
     font-variant-numeric: tabular-nums;
   }
-
+ 
   .tree-instructions {
     font-size: 11px;
     color: var(--text-3);
     margin: 0 0 14px;
     font-style: italic;
   }
-
+ 
   /* RESULTS — right column */
   .results-header { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 0.5px solid var(--border); }
   .results-header .path { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
   .results-header .scenario { font-size: 13px; font-weight: 500; }
-
+ 
   .result-group { margin-bottom: 14px; }
   .result-group h4 { font-size: 10px; font-weight: 500; margin: 0 0 6px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; }
   .metric-row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; font-size: 13px; gap: 8px; }
@@ -332,14 +332,14 @@
   .metric-row .value { font-variant-numeric: tabular-nums; flex-shrink: 0; }
   .metric-row .value.positive { color: var(--green); }
   .metric-row .value.negative { color: var(--red); }
-
+ 
   .horizon-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-top: 6px; }
   .horizon-table th { font-weight: 500; font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); text-align: right; padding: 4px 4px; border-bottom: 0.5px solid var(--border); }
   .horizon-table th:first-child { text-align: left; }
   .horizon-table td { padding: 5px 4px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 0.5px solid var(--border); }
   .horizon-table td:first-child { text-align: left; color: var(--text-2); }
   .horizon-table tr:last-child td { border-bottom: none; font-weight: 500; }
-
+ 
   .flag {
     padding: 8px 10px;
     font-size: 11px;
@@ -349,7 +349,7 @@
   }
   .flag-amber { background: var(--amber-bg); border-left: 3px solid var(--amber); color: var(--amber); }
   .flag-red { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
-
+ 
   /* Deep dive section */
   .deep-dive {
     margin-top: 20px;
@@ -443,7 +443,52 @@
   .insight-box .num { font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
   .insight-box .num.pos { color: var(--green); }
   .insight-box .num.neg { color: var(--red); }
-
+ 
+  /* ============ COMPARE MODE ============ */
+  .btn-pin {
+    margin-top: 8px;
+    font-family: var(--font);
+    font-size: 11px;
+    padding: 6px 10px;
+    background: var(--surface-2);
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-pin:hover { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+  .btn-small {
+    font-family: var(--font);
+    font-size: 10px;
+    padding: 5px 9px;
+    background: var(--surface-2);
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    cursor: pointer;
+    min-height: 28px;
+  }
+  .btn-small:hover { background: var(--surface-3); }
+  .compare-header { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .compare-col { padding: 10px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border-strong); background: var(--surface); }
+  .compare-col-a { border-left: 3px solid #8B7BA3; background: rgba(139,123,163,0.06); }
+  .compare-col-b { border-left: 3px solid var(--accent); background: var(--accent-bg); }
+  .compare-col .ptype { font-size: 9px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; font-weight: 500; }
+  .compare-col .scenario { font-size: 12px; color: var(--text); line-height: 1.35; font-weight: 500; }
+  .pin-controls { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .cmp-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-top: 4px; }
+  .cmp-table th { font-weight: 500; font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); text-align: right; padding: 5px 4px; border-bottom: 0.5px solid var(--border); }
+  .cmp-table th:first-child { text-align: left; }
+  .cmp-table td { padding: 5px 4px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 0.5px solid var(--border); }
+  .cmp-table td:first-child { text-align: left; color: var(--text-2); }
+  .cmp-table tr.headline td { font-weight: 600; font-size: 12px; }
+  .cmp-table td.pos { color: var(--green); }
+  .cmp-table td.neg { color: var(--red); }
+  .cmp-table td.muted { color: var(--text-3); }
+  .cmp-section { margin-bottom: 14px; }
+  .cmp-section h4 { font-size: 10px; font-weight: 500; margin: 0 0 6px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.05em; }
+ 
   /* ============ MOBILE TAB BAR (hidden on desktop) ============ */
   .mobile-tabs {
     display: none;
@@ -471,14 +516,14 @@
     color: var(--accent);
     border-bottom-color: var(--accent);
   }
-
+ 
   /* ============ RESPONSIVE BREAKPOINT ============ */
   @media (max-width: 900px) {
     /* Show mobile tabs, hide resizers */
     .mobile-tabs { display: flex; }
     .resizer { display: none; }
     .desktop-only { display: none !important; }
-
+ 
     /* Header adjustments */
     header.topbar {
       padding: 10px 14px;
@@ -487,7 +532,7 @@
     }
     header h1 { font-size: 14px; }
     .btn { font-size: 11px; padding: 5px 10px; min-height: 32px; }
-
+ 
     /* Single-column stacking — only show the active column */
     .columns { flex-direction: column; }
     .column {
@@ -501,7 +546,7 @@
       display: block;
       flex: 1;
     }
-
+ 
     /* Larger touch targets for inputs */
     .input-group input[type=number],
     .input-group input[type=text],
@@ -514,7 +559,7 @@
     .input-group .input-suffix input { padding-right: 28px; }
     .input-prefix::before { font-size: 15px; left: 10px; }
     .input-suffix::after { font-size: 15px; right: 10px; }
-
+ 
     /* Expenses: more touch-friendly */
     .expense-row {
       grid-template-columns: 1fr 130px 36px;
@@ -529,10 +574,10 @@
     .expense-row .input-prefix::before { font-size: 13px; left: 8px; }
     .expense-row .remove-btn { height: 40px; min-width: 36px; font-size: 18px; }
     .add-expense { padding: 12px; font-size: 14px; min-height: 44px; }
-
+ 
     /* Radio pills — bigger touch */
     .radio-pill span { padding: 12px 10px; font-size: 14px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-
+ 
     /* Decision tree — bigger touch targets */
     .tree-step { padding: 14px; }
     .step-question { font-size: 15px; }
@@ -542,7 +587,7 @@
     .choice-title { font-size: 14px; padding-right: 28px; }
     .choice-desc { font-size: 12px; }
     .choice.selected::after { top: 14px; right: 14px; font-size: 16px; }
-
+ 
     /* Addition controls: stack vertically on small screens */
     .addition-controls-row {
       flex-direction: column;
@@ -569,16 +614,16 @@
       min-height: 40px;
       flex: 1;
     }
-
+ 
     /* Results panel */
     .results-section { position: static; }
     .metric-row { font-size: 14px; }
     .metric-row.headline .value { font-size: 17px; }
-
+ 
     /* Charts: shorter on mobile */
     .chart-container { height: 240px; }
     .chart-container.tall { height: 280px; }
-
+ 
     /* Stress tabs: wrap nicely on mobile */
     .stress-tabs { gap: 6px; }
     .stress-tab {
@@ -586,24 +631,24 @@
       padding: 7px 11px;
       min-height: 36px;
     }
-
+ 
     /* Year-by-year table — let it scroll horizontally */
     .yearly-table {
       font-size: 11px;
       min-width: 560px;
     }
     .yearly-table th, .yearly-table td { padding: 6px 4px; }
-
+ 
     /* Column-body padding tightened */
     .column-body { padding: 14px; }
     .column-header { padding: 12px 14px 8px; }
-
+ 
     /* Inputs grid sections: full width */
     .input-section-divider { font-size: 11px; margin: 16px 0 8px; }
     .input-group label { font-size: 12px; }
     .input-group { margin-bottom: 14px; }
   }
-
+ 
   /* Very narrow phones */
   @media (max-width: 380px) {
     header h1 { font-size: 13px; }
@@ -615,9 +660,9 @@
 </style>
 </head>
 <body>
-
+ 
 <div class="app">
-
+ 
 <header class="topbar">
   <div>
     <h1>Shiloh vs Natchez — Decision Tree</h1>
@@ -628,21 +673,21 @@
     <button class="btn" onclick="resetAll()">⟳ Reset all</button>
   </div>
 </header>
-
+ 
 <!-- Mobile tab bar (hidden on desktop) -->
 <nav class="mobile-tabs" id="mobileTabs">
   <button class="mobile-tab active" data-target="col-inputs" onclick="setMobileTab('col-inputs')">Inputs</button>
   <button class="mobile-tab" data-target="col-tree" onclick="setMobileTab('col-tree')">Decisions</button>
   <button class="mobile-tab" data-target="col-results" onclick="setMobileTab('col-results')">Outcomes</button>
 </nav>
-
+ 
 <div class="columns" id="columns">
-
+ 
   <!-- INPUTS COLUMN -->
   <div class="column column-inputs" id="col-inputs">
     <div class="column-header"><h2>Inputs</h2></div>
     <div class="column-body">
-
+ 
       <div class="input-section-divider">Income</div>
       <div class="input-group">
         <label>Andrea income (annual)<span class="hint" title="Wife's total income — W2 + S-corp distributions">ⓘ</span></label>
@@ -662,7 +707,7 @@
       </div>
       <div class="input-group">
         <label>Kevin FA mature growth (% / yr)<span class="hint" title="Sustained long-term growth rate after the early ramp tapers off (typically 3-8%)">ⓘ</span></label>
-        <div class="input-suffix" data-suffix="%"><input type="number" id="i-kevinMatureGrowth" value="6" oninput="recalc()"></div>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-kevinMatureGrowth" value="10" oninput="recalc()"></div>
       </div>
       <div class="input-group">
         <label>VA disability (monthly, tax-free)<span class="hint" title="100% P&T VA disability">ⓘ</span></label>
@@ -672,7 +717,7 @@
         <label>VA COLA (% / yr)<span class="hint" title="Annual cost-of-living adjustment for VA disability. Historically tracks Social Security COLA, averaging ~2.5%.">ⓘ</span></label>
         <div class="input-suffix" data-suffix="%"><input type="number" id="i-vaCola" value="2.5" step="0.25" oninput="recalc()"></div>
       </div>
-
+ 
       <div class="input-section-divider">Cash &amp; equity</div>
       <div class="input-group">
         <label>Cash on hand<span class="hint" title="Liquid cash/investments now">ⓘ</span></label>
@@ -682,7 +727,7 @@
         <label>Earnest money at risk<span class="hint" title="Forfeit if you back out">ⓘ</span></label>
         <div class="input-prefix"><input type="text" inputmode="numeric" id="i-earnest" value="20,000" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
-
+ 
       <div class="input-section-divider">Natchez (current home)</div>
       <div class="input-group">
         <label>Natchez sale (net)<span class="hint" title="Expected net proceeds after fees">ⓘ</span></label>
@@ -694,21 +739,21 @@
       </div>
       <div class="input-group">
         <label>Natchez monthly P&amp;I<span class="hint" title="Current monthly mortgage payment on Natchez">ⓘ</span></label>
-        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezPmt" value="3,200" oninput="formatMoneyInput(this); recalc()"></div>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezPmt" value="2,400" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
       <div class="input-group">
         <label>Natchez property tax (annual)<span class="hint" title="Actual annual property tax bill for Natchez">ⓘ</span></label>
-        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezTax" value="12,650" oninput="formatMoneyInput(this); recalc()"></div>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezTax" value="12,000" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
       <div class="input-group">
         <label>Natchez insurance (annual)<span class="hint" title="Homeowner's insurance premium for Natchez">ⓘ</span></label>
-        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezIns" value="2,400" oninput="formatMoneyInput(this); recalc()"></div>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezIns" value="1,500" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
       <div class="input-group">
         <label>Natchez maintenance (annual budget)<span class="hint" title="Estimated annual maintenance & repair budget. Industry rule of thumb is 1% of home value, but actual out-of-pocket is often lower.">ⓘ</span></label>
         <div class="input-prefix"><input type="text" inputmode="numeric" id="i-natchezMaint" value="6,000" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
-
+ 
       <div class="input-section-divider">Shiloh (new home)</div>
       <div class="input-group">
         <label>Shiloh purchase price<span class="hint" title="Contract price">ⓘ</span></label>
@@ -716,17 +761,17 @@
       </div>
       <div class="input-group">
         <label>Shiloh property tax (annual)<span class="hint" title="Actual annual property tax bill for Shiloh">ⓘ</span></label>
-        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohTax" value="7,425" oninput="formatMoneyInput(this); recalc()"></div>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohTax" value="3,000" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
       <div class="input-group">
         <label>Shiloh insurance (annual)<span class="hint" title="Homeowner's insurance premium for Shiloh">ⓘ</span></label>
-        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohIns" value="2,400" oninput="formatMoneyInput(this); recalc()"></div>
+        <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohIns" value="1,500" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
       <div class="input-group">
         <label>Shiloh maintenance (annual budget)<span class="hint" title="Estimated annual maintenance & repair budget. 1976 build may warrant higher reserves.">ⓘ</span></label>
         <div class="input-prefix"><input type="text" inputmode="numeric" id="i-shilohMaint" value="4,000" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
-
+ 
       <div class="input-section-divider">Family</div>
       <div class="input-group">
         <label>Number of children<span class="hint" title="How many children will attend school during the planning horizon">ⓘ</span></label>
@@ -745,7 +790,7 @@
         <label>Years between kids<span class="hint" title="Age gap between first and second child. Affects when second child starts K">ⓘ</span></label>
         <div class="input-suffix" data-suffix="yr"><input type="number" id="i-ageGap" value="3" step="1" min="1" max="6" oninput="recalc()"></div>
       </div>
-
+ 
       <div class="input-section-divider">Assumptions</div>
       <div class="input-group">
         <label>Mortgage rate<span class="hint" title="VA loan rate">ⓘ</span></label>
@@ -753,7 +798,7 @@
       </div>
       <div class="input-group">
         <label>HELOC / addition loan rate<span class="hint" title="Rate for financing additions if you choose to finance rather than pay cash">ⓘ</span></label>
-        <div class="input-suffix" data-suffix="%"><input type="number" id="i-helocRate" value="8.5" step="0.125" oninput="recalc()"></div>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-helocRate" value="7" step="0.125" oninput="recalc()"></div>
       </div>
       <div class="input-group">
         <label>Investment return<span class="hint" title="Annual return on invested cash">ⓘ</span></label>
@@ -765,44 +810,45 @@
       </div>
       <div class="input-group">
         <label>Effective tax rate<span class="hint" title="Combined federal + state on taxable income">ⓘ</span></label>
-        <div class="input-suffix" data-suffix="%"><input type="number" id="i-taxRate" value="28" step="1" oninput="recalc()"></div>
+        <div class="input-suffix" data-suffix="%"><input type="number" id="i-taxRate" value="24" step="1" oninput="recalc()"></div>
       </div>
       <div class="input-group">
         <label>Breck tuition (year 1, per child)<span class="hint" title="Annual private school cost — Hopkins district requires this">ⓘ</span></label>
         <div class="input-prefix"><input type="text" inputmode="numeric" id="i-breck" value="40,000" oninput="formatMoneyInput(this); recalc()"></div>
       </div>
-
+ 
       <div class="input-section-divider">Monthly expenses (outside housing)</div>
       <div class="expenses-list" id="expensesList"></div>
       <button class="add-expense" onclick="addExpense()">+ Add expense</button>
-
+ 
     </div>
   </div>
-
+ 
   <div class="resizer" data-resize="inputs-tree"></div>
-
+ 
   <!-- DECISION TREE COLUMN -->
   <div class="column column-tree" id="col-tree">
     <div class="column-header"><h2>Decision tree</h2></div>
     <div class="column-body" id="treeBody"></div>
   </div>
-
+ 
   <div class="resizer" data-resize="tree-results"></div>
-
+ 
   <!-- RESULTS COLUMN -->
   <div class="column column-results" id="col-results">
     <div class="column-header"><h2>Projected outcome</h2></div>
     <div class="column-body" id="resultsBody"></div>
   </div>
-
+ 
 </div>
-
+ 
 </div>
-
+ 
 <script>
 const state = {
   path: [],
   stressTest: 'base', // 'base', 'andreaCut', 'kevinCut', 'both'
+  pinnedScenario: null, // {path, additionConfig, label} or null
   // Year offset is years from now (1 = next year, 2 = year after, etc.)
   // Budget is in dollars.
   additionConfig: {
@@ -822,7 +868,7 @@ const state = {
     { name: 'Savings/retirement contributions', amount: 2000 }
   ]
 };
-
+ 
 const tree = {
   root: {
     label: 'Step 1',
@@ -878,9 +924,9 @@ const tree = {
     ]
   }
 };
-
+ 
 const STEP_ORDER = ['root', 'downPayment', 'schoolPlan', 'addition', 'natchezPlan'];
-
+ 
 // ============ HELPERS ============
 function parseMoney(str) {
   if (str === null || str === undefined) return 0;
@@ -888,7 +934,7 @@ function parseMoney(str) {
   const n = parseFloat(cleaned);
   return isNaN(n) ? 0 : n;
 }
-
+ 
 function formatMoneyInput(el) {
   const oldLength = el.value.length;
   const cursorFromEnd = oldLength - (el.selectionStart || 0);
@@ -899,7 +945,7 @@ function formatMoneyInput(el) {
   const newPos = Math.max(0, formatted.length - cursorFromEnd);
   try { el.setSelectionRange(newPos, newPos); } catch (e) {}
 }
-
+ 
 function fmt(n) {
   if (Math.abs(n) >= 1_000_000) return '$' + (n / 1_000_000).toFixed(2) + 'M';
   if (Math.abs(n) >= 1_000) return '$' + Math.round(n / 1_000).toLocaleString() + 'K';
@@ -907,14 +953,14 @@ function fmt(n) {
 }
 function fmt0(n) { return '$' + Math.round(n).toLocaleString(); }
 function fmtSigned(n) { return (n >= 0 ? '+' : '') + fmt(n); }
-
+ 
 // ============ FINANCIAL FUNCTIONS ============
 function monthlyPmt(principal, annualRate, months = 360) {
   if (principal <= 0) return 0;
   const r = annualRate / 12;
   return principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
 }
-
+ 
 function amortizeAfterYears(principal, annualRate, years, months = 360) {
   if (principal <= 0) return { balance: 0, interestPaid: 0 };
   const r = annualRate / 12;
@@ -930,19 +976,19 @@ function amortizeAfterYears(principal, annualRate, years, months = 360) {
   }
   return { balance, interestPaid };
 }
-
+ 
 function fvLumpSum(pv, annualRate, years) {
   if (pv <= 0) return 0;
   return pv * Math.pow(1 + annualRate / 12, years * 12);
 }
-
+ 
 function fvAnnuity(monthlyContrib, annualRate, years) {
   if (monthlyContrib === 0) return 0;
   const r = annualRate / 12;
   const n = years * 12;
   return monthlyContrib * ((Math.pow(1 + r, n) - 1) / r);
 }
-
+ 
 // ============ INPUTS & PATH ============
 function getInputs() {
   const v = id => {
@@ -985,11 +1031,11 @@ function getInputs() {
     ageGap: v('i-ageGap') || 3
   };
 }
-
+ 
 function getMonthlyExpenses() {
   return state.expenses.reduce((sum, e) => sum + parseMoney(e.amount), 0);
 }
-
+ 
 // Returns an array of {cost, yearOffset, financed} events based on the selected addition type
 function getAdditionEvents() {
   const meta = getPathMeta();
@@ -1003,11 +1049,11 @@ function getAdditionEvents() {
   ];
   return [];
 }
-
+ 
 function getTotalAdditionCost() {
   return getAdditionEvents().reduce((sum, e) => sum + e.cost, 0);
 }
-
+ 
 function getPathMeta() {
   const meta = {};
   state.path.forEach(choiceId => {
@@ -1020,20 +1066,20 @@ function getPathMeta() {
   });
   return meta;
 }
-
+ 
 function isStepActive(stepKey) {
   const step = tree[stepKey];
   if (!step.requiresPath) return true;
   return step.requiresPath.every(req => state.path.includes(req));
 }
-
+ 
 function selectedChoiceForStep(stepKey) {
   const step = tree[stepKey];
   if (!step.choices) return null;
   const ids = step.choices.map(c => c.id);
   return state.path.find(id => ids.includes(id)) || null;
 }
-
+ 
 // ============ COMPUTE SCENARIO ============
 function computeScenario() {
   const inp = getInputs();
@@ -1041,12 +1087,12 @@ function computeScenario() {
   const monthlyExpenses = getMonthlyExpenses();
   const isBuyPath = state.path.includes('buy');
   const isWalkPath = state.path.includes('walkAway');
-
+ 
   const andreaNetMonthly = (inp.andrea * (1 - inp.taxRate)) / 12;
   const kevinNetMonthly = (inp.kevin * (1 - inp.taxRate)) / 12;
   const vaMonthly = inp.va;
   const totalIncomeMonthly = andreaNetMonthly + kevinNetMonthly + vaMonthly;
-
+ 
   // Helper: Kevin's annual gross income at year `y` (y=0 is current).
   // Early years grow at kevinGrowth, then taper to kevinMatureGrowth.
   function kevinIncomeAtYear(y) {
@@ -1057,7 +1103,7 @@ function computeScenario() {
     }
     return income;
   }
-
+ 
   // Helper: full monthly net income at year `y` (Andrea + Kevin's grown income + VA, all net of tax for Andrea/Kevin, VA tax-free).
   // VA disability is indexed for inflation via annual COLA. Andrea is held flat (override in inputs if needed).
   function totalNetMonthlyAtYear(y) {
@@ -1065,9 +1111,9 @@ function computeScenario() {
     const vaAtYear = inp.va * Math.pow(1 + inp.vaCola, y);
     return (inp.andrea * (1 - inp.taxRate)) / 12 + (k * (1 - inp.taxRate)) / 12 + vaAtYear;
   }
-
+ 
   let housing = { piti: 0, pi: 0, tax: 0, ins: 0, maint: 0, loan: 0, dp: 0, homeValue: 0, leftoverInvest: 0, additionCost: 0, schoolMonthly: 0 };
-
+ 
   if (isBuyPath) {
     const dp = meta.dp ?? 572000;
     const natchezEquity = inp.natchezNet - inp.natchezMort;
@@ -1112,12 +1158,12 @@ function computeScenario() {
     housing.homeValue = inp.natchezNet;
     housing.leftoverInvest = inp.cash;
   }
-
+ 
   const totalMonthlyOut = housing.piti + monthlyExpenses + housing.schoolMonthly;
   const excessCashFlow = totalIncomeMonthly - totalMonthlyOut;
   const additionEvents = getAdditionEvents();
   const HELOC_TERM_MONTHS = 180; // 15-year HELOC
-
+ 
   // Pre-compute monthly P&I for financed additions
   additionEvents.forEach(evt => {
     if (evt.financed) {
@@ -1126,25 +1172,25 @@ function computeScenario() {
       evt.monthlyPI = 0;
     }
   });
-
+ 
   // Total addition monthly cost AT PRESENT (only counts events that have already started)
   // For monthly cash flow display, show "current" addition payments (events at yearOffset 0/1 if you've already started)
   // Since all events are future, the "today" view shouldn't include them yet.
   // But the projection year-by-year DOES need them.
-
+ 
   const horizons = [1, 3, 5, 10, 20, 30];
   const projections = horizons.map(years => {
     const { balance, interestPaid } = amortizeAfterYears(housing.loan, inp.rate, years);
     const homeFuture = housing.homeValue * Math.pow(1 + inp.appr, years);
     const homeEquity = homeFuture - balance;
     const investedGrowth = fvLumpSum(housing.leftoverInvest, inp.invRet, years);
-
+ 
     // Year-by-year cash flow simulation (monthly is too granular; we'll do annual)
     // Net contribution to investments each year = (excessCashFlow*12) - (financed addition P&I*12 active that year) - (cash addition draws that year)
     let investedFromCashFlow = 0;
     let cashAdditionImpact = 0; // Tracks compounded value of cash draws (their opportunity cost)
     const r = inp.invRet;
-
+ 
     for (let y = 1; y <= years; y++) {
       // (1) Year-specific income (Kevin's income grows over time)
       const yearIncomeMonthly = totalNetMonthlyAtYear(y);
@@ -1169,7 +1215,7 @@ function computeScenario() {
       // Compound this year's contribution forward to end of horizon
       const yearsRemaining = years - y;
       investedFromCashFlow += yearContribution * Math.pow(1 + r, yearsRemaining);
-
+ 
       // Cash addition events happening THIS year reduce the invested balance instantly
       additionEvents.forEach(evt => {
         if (!evt.financed && y === evt.yearOffset) {
@@ -1178,7 +1224,7 @@ function computeScenario() {
         }
       });
     }
-
+ 
     // For financed additions, subtract any remaining HELOC balance at the horizon
     let financedDebtRemaining = 0;
     additionEvents.forEach(evt => {
@@ -1191,7 +1237,7 @@ function computeScenario() {
         }
       }
     });
-
+ 
     const netWorth = homeEquity + investedGrowth + investedFromCashFlow - cashAdditionImpact - financedDebtRemaining;
     return {
       years, mortgageBalance: balance, interestPaid, homeValue: homeFuture, homeEquity,
@@ -1200,10 +1246,10 @@ function computeScenario() {
       netWorth, excessCashFlowMonthly: excessCashFlow
     };
   });
-
+ 
   return { inp, meta, housing, totalIncomeMonthly, monthlyExpenses, totalMonthlyOut, excessCashFlow, projections, isBuyPath, isWalkPath };
 }
-
+ 
 // ============ DETAILED YEAR-BY-YEAR SIMULATION ============
 // Returns rich annual data for a given stress test scenario.
 // stressOpts: { andreaCut, kevinCut, expenseShock } — multipliers (1 = no change, 0.5 = halved)
@@ -1216,19 +1262,19 @@ function simulateYears(years = 10, stressOpts = {}) {
   const additionEvents = getAdditionEvents();
   const HELOC_TERM_MONTHS = 180;
   const r = inp.invRet;
-
+ 
   // Stress modifiers
   const andreaMult = stressOpts.andreaCut !== undefined ? stressOpts.andreaCut : 1;
   const kevinMult = stressOpts.kevinCut !== undefined ? stressOpts.kevinCut : 1;
   const expenseMult = stressOpts.expenseShock !== undefined ? stressOpts.expenseShock : 1;
-
+ 
   // Pre-compute housing
   let housing = {};
   let startingPortfolio = 0;
   let homeValueStart = 0;
   let loanStart = 0;
   let mortgageRate = inp.rate;
-
+ 
   if (isBuyPath) {
     const dp = meta.dp ?? 572000;
     const natchezEquity = inp.natchezNet - inp.natchezMort;
@@ -1266,25 +1312,25 @@ function simulateYears(years = 10, stressOpts = {}) {
   }
   housing.piti = housing.pi + housing.tax + housing.ins + housing.maint;
   const schoolFlag = (isBuyPath && meta.school === 'private') || isWalkPath;
-
+ 
   // Pre-compute financed addition monthly payments
   additionEvents.forEach(evt => {
     evt.monthlyPI = evt.financed ? monthlyPmt(evt.cost, inp.helocRate, HELOC_TERM_MONTHS) : 0;
   });
-
+ 
   // Simulate year by year
   const rows = [];
   let portfolio = startingPortfolio;
   let homeValue = homeValueStart;
   let loanBalance = loanStart;
-
+ 
   // Track each financed addition's remaining balance separately for accurate retirement
   const helocBalances = additionEvents.filter(e => e.financed).map(e => ({
     event: e,
     balance: 0, // Activates at yearOffset
     startYear: e.yearOffset
   }));
-
+ 
   for (let y = 0; y <= years; y++) {
     // Income at year y
     const andreaNetMonthly = (inp.andrea * andreaMult * (1 - inp.taxRate)) / 12;
@@ -1299,7 +1345,7 @@ function simulateYears(years = 10, stressOpts = {}) {
     const kevinNetMonthly = (kevinYearIncome * (1 - inp.taxRate)) / 12;
     const vaMonthly = inp.va * Math.pow(1 + inp.vaCola, y);
     const incomeMonthly = andreaNetMonthly + kevinNetMonthly + vaMonthly;
-
+ 
     // School cost this year
     let schoolMonthly = 0;
     if (schoolFlag) {
@@ -1307,7 +1353,7 @@ function simulateYears(years = 10, stressOpts = {}) {
       const childStarts = inp.numChildren === 2 ? [3, 3 + inp.ageGap] : [3];
       childStarts.forEach(s => { if (y >= s && y < s + 13) schoolMonthly += perChild; });
     }
-
+ 
     // Active addition financed P&I this year
     let additionPaymentMonthly = 0;
     helocBalances.forEach(hb => {
@@ -1315,20 +1361,20 @@ function simulateYears(years = 10, stressOpts = {}) {
         additionPaymentMonthly += hb.event.monthlyPI;
       }
     });
-
+ 
     // Cash addition draw this year (year of the event)
     let cashDrawThisYear = 0;
     additionEvents.forEach(evt => {
       if (!evt.financed && y === evt.yearOffset) cashDrawThisYear += evt.cost;
     });
-
+ 
     // Apply expense shock
     const expensesAdjusted = monthlyExpenses * expenseMult;
-
+ 
     // Annual cash flow
     const monthlyNet = incomeMonthly - housing.piti - expensesAdjusted - schoolMonthly - additionPaymentMonthly;
     const annualNet = monthlyNet * 12;
-
+ 
     // Snapshot before changes this year
     const row = {
       year: y,
@@ -1346,7 +1392,7 @@ function simulateYears(years = 10, stressOpts = {}) {
       andreaIncome: inp.andrea * andreaMult,
       kevinIncome: kevinYearIncome
     };
-
+ 
     // Update portfolio: grow, add net cash flow, subtract cash draws
     if (y > 0) {
       portfolio = portfolio * (1 + r); // grow over the year
@@ -1357,14 +1403,14 @@ function simulateYears(years = 10, stressOpts = {}) {
       portfolio = Math.max(0, portfolio); // can't go negative
     }
     row.portfolioEnd = portfolio;
-
+ 
     // Update mortgage balance
     if (y > 0 && loanBalance > 0) {
       const { balance: newBal } = amortizeAfterYears(loanStart, mortgageRate, y);
       loanBalance = newBal;
     }
     row.mortgageBalance = loanBalance;
-
+ 
     // Update HELOC balances
     helocBalances.forEach(hb => {
       if (y >= hb.startYear) {
@@ -1378,26 +1424,26 @@ function simulateYears(years = 10, stressOpts = {}) {
       }
     });
     row.helocDebt = helocBalances.reduce((s, hb) => s + hb.balance, 0);
-
+ 
     // Home appreciation
     if (y > 0) homeValue = homeValue * (1 + inp.appr);
     row.homeValue = homeValue;
     row.homeEquity = homeValue - loanBalance;
     row.netWorth = row.homeEquity + portfolio - row.helocDebt;
-
+ 
     rows.push(row);
   }
-
+ 
   return { rows, startingPortfolio, additionEvents };
 }
-
+ 
 // ============ RENDER: TREE ============
 function buildAdditionControls(choiceId) {
   // Returns HTML for budget/year controls inside an addition choice card.
   // For "both", we render two sets (front + rear).
   const currentYear = new Date().getFullYear();
   const cfg = state.additionConfig;
-
+ 
   function renderSet(label, configKey, budgetOptions) {
     const c = cfg[configKey];
     let html = `<div class="addition-controls-row">`;
@@ -1435,31 +1481,31 @@ function buildAdditionControls(choiceId) {
     html += `</div></div>`;
     return html;
   }
-
+ 
   if (choiceId === 'add-front') return renderSet('Front addition', 'front', [150000, 200000, 250000]);
   if (choiceId === 'add-rear') return renderSet('Rear addition', 'rear', [300000, 350000, 400000]);
   if (choiceId === 'add-both') return renderSet('Front first', 'bothFront', [150000, 200000, 250000]) + renderSet('Then rear', 'bothRear', [300000, 350000, 400000]);
   return '';
 }
-
+ 
 function setAdditionBudget(key, amount) {
   state.additionConfig[key].budget = amount;
   renderTree();
   renderResults();
 }
-
+ 
 function setAdditionYear(key, year) {
   state.additionConfig[key].yearOffset = year;
   renderTree();
   renderResults();
 }
-
+ 
 function setAdditionFinanced(key, financed) {
   state.additionConfig[key].financed = financed;
   renderTree();
   renderResults();
 }
-
+ 
 function buildAdditionSummary(choiceId) {
   // Quick badge-style summary of current config for addition choices
   const cfg = state.additionConfig;
@@ -1485,21 +1531,21 @@ function buildAdditionSummary(choiceId) {
   }
   return parts.map(([txt, cls]) => `<span class="badge ${cls}">${txt}</span>`).join('');
 }
-
+ 
 function renderTree() {
   const body = document.getElementById('treeBody');
   let html = '<p class="tree-instructions">All steps are visible. Click a choice to select it — later steps unlock as needed. Click the same choice again to deselect it.</p>';
-
+ 
   STEP_ORDER.forEach(stepKey => {
     const step = tree[stepKey];
     if (!step.choices) return;
     const active = isStepActive(stepKey);
     const selectedId = selectedChoiceForStep(stepKey);
-
+ 
     let stepNumClass = 'step-number';
     if (active && selectedId) stepNumClass += ' complete';
     else if (active) stepNumClass += ' active';
-
+ 
     html += `<div class="tree-step ${active ? '' : 'locked'}">`;
     html += `<div class="step-header"><span class="${stepNumClass}">${step.label}</span></div>`;
     html += `<p class="step-question">${step.question}</p>`;
@@ -1526,15 +1572,15 @@ function renderTree() {
     });
     html += `</div></div>`;
   });
-
+ 
   body.innerHTML = html;
 }
-
+ 
 function selectChoice(stepKey, choiceId) {
   const step = tree[stepKey];
   const stepChoiceIds = step.choices.map(c => c.id);
   const alreadySelected = state.path.find(id => stepChoiceIds.includes(id));
-
+ 
   if (alreadySelected === choiceId) {
     // Clicking the same choice = deselect, and clear everything downstream
     const idx = state.path.indexOf(choiceId);
@@ -1559,27 +1605,27 @@ function selectChoice(stepKey, choiceId) {
       return true;
     });
   }
-
+ 
   renderTree();
   renderResults();
 }
-
+ 
 function resetTree() {
   state.path = [];
   renderTree();
   renderResults();
 }
-
+ 
 function resetAll() {
   if (!confirm('Reset all inputs and decisions to defaults?')) return;
   location.reload();
 }
-
+ 
 // ============ RENDER: RESULTS ============
 function renderResults() {
   const container = document.getElementById('resultsBody');
   const s = computeScenario();
-
+ 
   let pathLabel = state.path.length === 0 ? 'No decisions yet — showing current state (Natchez)' : '';
   if (state.path.length > 0) {
     if (s.isBuyPath) pathLabel = 'Buying Shiloh';
@@ -1594,14 +1640,14 @@ function renderResults() {
     if (meta.addition === 'rear') pathLabel += ' · rear add';
     if (meta.addition === 'both') pathLabel += ' · both adds';
   }
-
+ 
   let html = `
     <div class="results-header">
       <div class="path">Current scenario</div>
       <div class="scenario">${pathLabel}</div>
     </div>
   `;
-
+ 
   html += `
     <div class="result-group">
       <h4>Monthly cash flow</h4>
@@ -1612,7 +1658,7 @@ function renderResults() {
       <div class="metric-row headline"><span class="label">Excess cash flow</span><span class="value ${s.excessCashFlow >= 0 ? 'positive' : 'negative'}">${fmtSigned(s.excessCashFlow)}</span></div>
     </div>
   `;
-
+ 
   if (s.housing.loan > 0 || state.path.length > 0) {
     html += `
       <div class="result-group">
@@ -1624,7 +1670,7 @@ function renderResults() {
       </div>
     `;
   }
-
+ 
   if (s.isBuyPath) {
     const natchezEquity = s.inp.natchezNet - s.inp.natchezMort;
     const cashNeededAtClosing = Math.max(0, s.housing.dp - s.inp.earnest);
@@ -1643,7 +1689,7 @@ function renderResults() {
       </div>
     `;
   }
-
+ 
   html += `
     <div class="result-group">
       <h4>Net worth projection</h4>
@@ -1657,7 +1703,7 @@ function renderResults() {
     html += `<tr><td>${p.years}</td><td>${fmt(p.homeEquity)}</td><td>${fmt(p.investedTotal)}</td><td>${fmt(p.netWorth)}</td></tr>`;
   });
   html += `</tbody></table></div>`;
-
+ 
   if (s.housing.cashShortfall > 0) {
     html += `<div class="flag flag-red"><strong>⚠ Cash shortfall at closing:</strong> This scenario requires ${fmt(s.housing.cashShortfall)} more than you have available between cash on hand and Natchez equity. You'd need to bring additional funds, finance differently, or pick a lower down payment.</div>`;
   }
@@ -1686,7 +1732,7 @@ function renderResults() {
   if (s.housing.loan > 500000 && s.excessCashFlow < 3000) {
     html += `<div class="flag flag-amber"><strong>High leverage:</strong> Large mortgage with limited cash flow margin.</div>`;
   }
-
+ 
   // Deep dive section — only show when a path is selected
   if (state.path.length > 0) {
     html += `
@@ -1710,7 +1756,7 @@ function renderResults() {
       </div>
     `;
   }
-
+ 
   container.innerHTML = html;
   
   // Render charts after DOM is in place
@@ -1718,18 +1764,18 @@ function renderResults() {
     renderDeepDive();
   }
 }
-
+ 
 function recalc() { renderResults(); }
-
+ 
 function setStress(s) {
   state.stressTest = s;
   renderResults();
 }
-
+ 
 // Chart instances to destroy/recreate on each render
 let cashFlowChartInstance = null;
 let portfolioChartInstance = null;
-
+ 
 function getStressOpts() {
   switch (state.stressTest) {
     case 'andreaCut': return { andreaCut: 0.5, kevinCut: 1 };
@@ -1738,14 +1784,14 @@ function getStressOpts() {
     default: return {};
   }
 }
-
+ 
 function renderDeepDive() {
   const HORIZON = 10; // simulate 10 years so we get more context, but charts focus on 5
   const baseSim = simulateYears(HORIZON, {});
   const stressSim = simulateYears(HORIZON, getStressOpts());
   const data = state.stressTest === 'base' ? baseSim : stressSim;
   const rows = data.rows;
-
+ 
   // Get color from CSS variable (with fallbacks)
   const css = getComputedStyle(document.documentElement);
   const green = '#3B6D11';
@@ -1758,11 +1804,11 @@ function renderDeepDive() {
   const blueBg = '#E6F1FB';
   const textColor = css.getPropertyValue('--text-2').trim() || '#5F5E5A';
   const gridColor = 'rgba(0,0,0,0.06)';
-
+ 
   Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif';
   Chart.defaults.font.size = 10;
   Chart.defaults.color = textColor;
-
+ 
   // === CASH FLOW CHART (stacked: income components positive, expenses negative, net line) ===
   if (cashFlowChartInstance) cashFlowChartInstance.destroy();
   const labels = rows.slice(0, 6).map(r => `Yr ${r.year}`);
@@ -1774,7 +1820,7 @@ function renderDeepDive() {
   // Split income for visualization: VA (permanent floor) shown distinct from business income (stressable)
   const vaIncomeData = rows.slice(0, 6).map(r => r.vaIncomeAnnual / 1000);
   const businessIncomeData = rows.slice(0, 6).map(r => r.businessIncomeAnnual / 1000);
-
+ 
   const ctx1 = document.getElementById('cashFlowChart');
   if (ctx1) {
     cashFlowChartInstance = new Chart(ctx1, {
@@ -1809,7 +1855,7 @@ function renderDeepDive() {
       }
     });
   }
-
+ 
   // === PORTFOLIO CHART (line over time, addition events marked) ===
   if (portfolioChartInstance) portfolioChartInstance.destroy();
   const portfolioLabels = rows.map(r => `Yr ${r.year}`);
@@ -1817,7 +1863,7 @@ function renderDeepDive() {
   const helocData = rows.map(r => -r.helocDebt / 1000);
   // Mark addition events
   const eventMarkers = rows.map(r => r.cashDraw > 0 ? r.portfolioEnd / 1000 : null);
-
+ 
   const ctx2 = document.getElementById('portfolioChart');
   if (ctx2) {
     portfolioChartInstance = new Chart(ctx2, {
@@ -1878,7 +1924,7 @@ function renderDeepDive() {
       }
     });
   }
-
+ 
   // === YEAR-BY-YEAR TABLE ===
   const tableEl = document.getElementById('yearlyTable');
   if (tableEl) {
@@ -1906,14 +1952,14 @@ function renderDeepDive() {
     tbl += `</tbody>`;
     tableEl.innerHTML = tbl;
   }
-
+ 
   // === INSIGHT BOX ===
   const insightEl = document.getElementById('deepDiveInsight');
   if (insightEl) {
     insightEl.innerHTML = buildInsight(baseSim, stressSim);
   }
 }
-
+ 
 function buildInsight(baseSim, stressSim) {
   const inp = getInputs();
   const baseRows = baseSim.rows;
@@ -1921,20 +1967,20 @@ function buildInsight(baseSim, stressSim) {
   const isStressed = state.stressTest !== 'base';
   const data = isStressed ? stressRows : baseRows;
   const additionEvents = baseSim.additionEvents;
-
+ 
   // Key metrics
   const yr5 = data[5];
   const yr10 = data[10];
   const minMonthly = Math.min(...data.slice(0, 6).map(r => r.monthlyNet));
   const minYear = data.slice(0, 6).find(r => r.monthlyNet === minMonthly);
   const totalAdditions = additionEvents.reduce((s, e) => s + e.cost, 0);
-
+ 
   // Self-fund check: does investment growth cover additions?
   const r = inp.invRet;
   const startPortfolio = baseSim.rows[0].portfolioStart;
   const passiveGrowth5y = startPortfolio * (Math.pow(1 + r, 5) - 1); // 5-yr passive growth on starting balance
   const canSelfFund = passiveGrowth5y >= totalAdditions;
-
+ 
   let html = '<div class="insight-box">';
   if (isStressed) {
     const stressLabel = {
@@ -1967,7 +2013,7 @@ function buildInsight(baseSim, stressSim) {
   html += '</div>';
   return html;
 }
-
+ 
 // ============ EXPENSES ============
 function renderExpenses() {
   const container = document.getElementById('expensesList');
@@ -1984,41 +2030,41 @@ function renderExpenses() {
   });
   container.innerHTML = html;
 }
-
+ 
 function addExpense() {
   state.expenses.push({ name: '', amount: 0 });
   renderExpenses();
   recalc();
 }
-
+ 
 function removeExpense(idx) {
   state.expenses.splice(idx, 1);
   renderExpenses();
   recalc();
 }
-
+ 
 function updateExpenseName(idx, value) {
   state.expenses[idx].name = value;
 }
-
+ 
 function updateExpenseAmount(idx, value) {
   state.expenses[idx].amount = parseMoney(value);
   recalc();
 }
-
+ 
 // ============ RESIZING ============
 function initResizers() {
   const resizers = document.querySelectorAll('.resizer');
   const colInputs = document.getElementById('col-inputs');
   const colResults = document.getElementById('col-results');
   const columns = document.getElementById('columns');
-
+ 
   resizers.forEach(resizer => {
     let startX = 0;
     let startWidth = 0;
     let target = null;
     let direction = null;
-
+ 
     const onDown = (e) => {
       startX = e.clientX;
       direction = resizer.dataset.resize;
@@ -2035,7 +2081,7 @@ function initResizers() {
       document.addEventListener('mouseup', onUp);
       e.preventDefault();
     };
-
+ 
     const onMove = (e) => {
       const dx = e.clientX - startX;
       let newWidth;
@@ -2051,18 +2097,18 @@ function initResizers() {
       if (centerWidth < 280) return;
       target.style.width = newWidth + 'px';
     };
-
+ 
     const onUp = () => {
       document.body.classList.remove('resizing');
       resizer.classList.remove('active');
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     };
-
+ 
     resizer.addEventListener('mousedown', onDown);
   });
 }
-
+ 
 // ============ MOBILE TAB SWITCHING ============
 function setMobileTab(targetId) {
   // Update tab buttons
@@ -2082,7 +2128,7 @@ function setMobileTab(targetId) {
   const col = document.getElementById(targetId);
   if (col) col.scrollTop = 0;
 }
-
+ 
 function initMobileLayout() {
   // Default to inputs tab on mobile
   setMobileTab('col-inputs');
@@ -2100,7 +2146,7 @@ function initMobileLayout() {
     }
   });
 }
-
+ 
 // ============ INIT ============
 renderExpenses();
 renderTree();
@@ -2108,6 +2154,6 @@ renderResults();
 initResizers();
 initMobileLayout();
 </script>
-
+ 
 </body>
 </html>
